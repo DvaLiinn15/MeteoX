@@ -1,0 +1,2246 @@
+<!DOCTYPE html>
+<html lang="es" data-theme="light">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>MeteoX Inteligencia Climática para tu Cultivo</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Outfit:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<script src="https://unpkg.com/lucide@latest/dist/umd/lucide.js" defer></script>
+<style>
+.inline-ic { width: 1em; height: 1em; vertical-align: -0.15em; stroke-width: 2; }
+.nav-icon i, .kpi-icon i, .sett-icon i, .alert-icon i, .np-icon i, .diag-icon i, .anomaly-icon i, .report-icon i { width: 1.05em; height: 1.05em; stroke-width: 1.9; }
+</style>
+<style>
+/* ═══════════════════════════════════════════
+   LIGHT THEME (DEFAULT — matching the image)
+   ═══════════════════════════════════════════ */
+:root,
+[data-theme="light"] {
+  --bg:          #f4f6f8;
+  --surface:     #ffffff;
+  --surface2:    #f8f9fb;
+  --surface3:    #eef0f4;
+  --border:      #e4e7ed;
+  --border2:     #d1d5de;
+  --text:        #1a1d23;
+  --text2:       #4a5568;
+  --text3:       #8a94a6;
+  --text4:       #b0b8c8;
+  --sidebar-bg:  #ffffff;
+  --header-bg:   #ffffff;
+  --active-nav:  #e8f5e9;
+  --active-nav-text: #2e7d32;
+  --active-nav-border: #4caf50;
+  /* Accents matching image */
+  --green:       #4caf50;
+  --green-dark:  #2e7d32;
+  --green-light: #e8f5e9;
+  --blue:        #1976d2;
+  --blue-light:  #e3f2fd;
+  --amber:       #f59e0b;
+  --amber-light: #fffbeb;
+  --red:         #ef4444;
+  --red-light:   #fef2f2;
+  --orange:      #f97316;
+  --teal:        #009688;
+  /* Hero gradient — matches image weather card */
+  --hero-grad:   linear-gradient(135deg, #1565c0 0%, #0d47a1 40%, #1b5e20 100%);
+  --shadow-sm:   0 1px 3px rgba(0,0,0,0.08), 0 1px 2px rgba(0,0,0,0.04);
+  --shadow:      0 4px 12px rgba(0,0,0,0.08), 0 2px 4px rgba(0,0,0,0.04);
+  --shadow-lg:   0 10px 30px rgba(0,0,0,0.10);
+  --radius:      12px;
+  --radius-sm:   8px;
+  --radius-xs:   5px;
+  --sidebar-w:   210px;
+}
+
+[data-theme="dark"] {
+  --bg:          #111318;
+  --surface:     #1a1e27;
+  --surface2:    #1f2433;
+  --surface3:    #252b3b;
+  --border:      rgba(255,255,255,0.08);
+  --border2:     rgba(255,255,255,0.13);
+  --text:        #e8edf5;
+  --text2:       #94a3b8;
+  --text3:       #5a6a82;
+  --text4:       #3a4a5e;
+  --sidebar-bg:  #1a1e27;
+  --header-bg:   #1a1e27;
+  --active-nav:  rgba(76,175,80,0.12);
+  --active-nav-text: #66bb6a;
+  --active-nav-border: #4caf50;
+  --green:       #66bb6a;
+  --green-dark:  #4caf50;
+  --green-light: rgba(76,175,80,0.1);
+  --blue:        #42a5f5;
+  --blue-light:  rgba(66,165,245,0.1);
+  --amber:       #fbbf24;
+  --amber-light: rgba(251,191,36,0.1);
+  --red:         #f87171;
+  --red-light:   rgba(248,113,113,0.1);
+  --orange:      #fb923c;
+  --teal:        #26a69a;
+  --hero-grad:   linear-gradient(135deg, #0d2851 0%, #0a1f40 40%, #0a2010 100%);
+  --shadow-sm:   0 1px 3px rgba(0,0,0,0.3);
+  --shadow:      0 4px 12px rgba(0,0,0,0.35);
+  --shadow-lg:   0 10px 30px rgba(0,0,0,0.5);
+}
+
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+html { font-size: 14px; scroll-behavior: smooth; }
+
+body {
+  font-family: 'Inter', sans-serif;
+  background: var(--bg);
+  color: var(--text);
+  min-height: 100vh;
+  overflow-x: hidden;
+  transition: background 0.3s ease, color 0.3s ease;
+}
+::-webkit-scrollbar { width: 5px; height: 5px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: var(--border2); border-radius: 99px; }
+
+/* ── LAYOUT ─────────────────────────── */
+.app { display: flex; min-height: 100vh; }
+
+/* ── SIDEBAR ─────────────────────────── */
+.sidebar {
+  width: var(--sidebar-w);
+  background: var(--sidebar-bg);
+  border-right: 1px solid var(--border);
+  position: fixed; top: 0; left: 0;
+  height: 100vh;
+  display: flex; flex-direction: column;
+  z-index: 200;
+  transition: transform 0.28s cubic-bezier(.4,0,.2,1), background 0.3s;
+  box-shadow: var(--shadow-sm);
+  overflow-y: auto;
+  overflow-x: hidden;
+}
+
+.sidebar-logo {
+  padding: 16px 18px;
+  border-bottom: 1px solid var(--border);
+  display: flex; align-items: center; gap: 10px;
+}
+.logo-mark {
+  width: 38px; height: 38px; flex-shrink: 0;
+  background: linear-gradient(135deg, #4caf50, #1976d2);
+  border-radius: 10px;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 1.2rem;
+  box-shadow: 0 2px 8px rgba(76,175,80,0.3);
+}
+.logo-text strong {
+  display: block;
+  font-family: 'Outfit', sans-serif;
+  font-size: 1.1rem; font-weight: 700;
+  color: var(--text);
+}
+.logo-text small { font-size: 0.68rem; color: var(--text3); }
+
+.nav { flex: 1; padding: 12px 10px; display: flex; flex-direction: column; gap: 2px; overflow-y: auto; }
+
+.nav-item {
+  display: flex; align-items: center; gap: 11px;
+  padding: 9px 12px;
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+  color: var(--text2);
+  font-size: 0.875rem; font-weight: 500;
+  transition: all 0.18s ease;
+  text-decoration: none;
+  position: relative;
+  border: 1px solid transparent;
+}
+.nav-item:hover { background: var(--surface2); color: var(--text); }
+.nav-item.active {
+  background: var(--active-nav);
+  color: var(--active-nav-text);
+  border-color: transparent;
+  font-weight: 600;
+}
+.nav-item.active::before {
+  content: '';
+  position: absolute; left: 0; top: 20%; bottom: 20%;
+  width: 3px; border-radius: 0 3px 3px 0;
+  background: var(--active-nav-border);
+  margin-left: -10px;
+}
+.nav-icon { width: 18px; text-align: center; flex-shrink: 0; font-size: 1rem; }
+.nav-badge {
+  margin-left: auto;
+  background: var(--red); color: #fff;
+  font-size: 0.62rem; font-weight: 700;
+  padding: 2px 6px; border-radius: 10px;
+  min-width: 18px; text-align: center;
+}
+@keyframes badge-pulse { 0%,100%{transform:scale(1)} 50%{transform:scale(1.1)} }
+
+.sidebar-bottom {
+  border-top: 1px solid var(--border);
+  padding: 12px 10px;
+  display: flex; flex-direction: column; gap: 4px;
+}
+.user-row {
+  display: flex; align-items: center; gap: 10px;
+  padding: 8px 12px; border-radius: var(--radius-sm);
+  cursor: pointer; transition: background 0.18s;
+}
+.user-row:hover { background: var(--surface2); }
+.user-avatar {
+  width: 32px; height: 32px; border-radius: 50%;
+  background: linear-gradient(135deg, #1976d2, #4caf50);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 0.75rem; font-weight: 700; color: #fff;
+  flex-shrink: 0;
+}
+.user-info strong { display: block; font-size: 0.8rem; font-weight: 600; color: var(--text); }
+.user-info small { font-size: 0.68rem; color: var(--text3); }
+
+/* ── HEADER ─────────────────────────── */
+.main { margin-left: var(--sidebar-w); flex: 1; display: flex; flex-direction: column; min-height: 100vh; min-width: 0; overflow-x: hidden; }
+
+.header {
+  height: 58px;
+  background: var(--header-bg);
+  border-bottom: 1px solid var(--border);
+  display: flex; align-items: center; gap: 12px;
+  padding: 0 22px;
+  position: sticky; top: 0; z-index: 100;
+  transition: background 0.3s;
+  box-shadow: var(--shadow-sm);
+}
+
+.hamburger {
+  display: none; background: none; border: none;
+  color: var(--text2); cursor: pointer; font-size: 1.1rem; padding: 4px;
+}
+
+.search-wrap {
+  flex: 1; max-width: 340px;
+  display: flex; align-items: center; gap: 8px;
+  background: var(--surface2);
+  border: 1px solid var(--border);
+  border-radius: 8px; padding: 7px 12px;
+  transition: border-color 0.2s;
+}
+.search-wrap:focus-within { border-color: var(--blue); }
+.search-wrap input {
+  background: none; border: none; outline: none;
+  color: var(--text); font-size: 0.82rem;
+  font-family: 'Inter', sans-serif; flex: 1;
+}
+.search-wrap input::placeholder { color: var(--text3); }
+
+.header-right { margin-left: auto; display: flex; align-items: center; gap: 8px; }
+
+/* Dark mode toggle */
+.theme-toggle {
+  display: flex; align-items: center; gap: 6px;
+  background: var(--surface2);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 6px 10px;
+  cursor: pointer; font-size: 0.78rem; color: var(--text2);
+  font-family: 'Inter', sans-serif; font-weight: 500;
+  transition: all 0.2s;
+}
+.theme-toggle:hover { border-color: var(--border2); color: var(--text); }
+
+.icon-btn {
+  width: 34px; height: 34px; border-radius: 8px;
+  background: var(--surface2); border: 1px solid var(--border);
+  display: flex; align-items: center; justify-content: center;
+  cursor: pointer; color: var(--text2); font-size: 0.95rem;
+  transition: all 0.2s; position: relative;
+}
+.icon-btn:hover { background: var(--surface3); color: var(--text); }
+.notif-dot {
+  position: absolute; top: 5px; right: 5px;
+  width: 7px; height: 7px; border-radius: 50%;
+  background: var(--red); border: 2px solid var(--header-bg);
+  animation: dot-pulse 1.6s ease infinite;
+}
+@keyframes dot-pulse {
+  0%,100%{box-shadow:0 0 0 0 rgba(239,68,68,0.5)}
+  50%{box-shadow:0 0 0 4px rgba(239,68,68,0)}
+}
+
+/* ── CONTENT ─────────────────────────── */
+.content { flex: 1; padding: 18px 20px; overflow-y: auto; overflow-x: hidden; }
+.page { display: none; }
+.page.active { display: block; animation: page-in 0.25s ease; }
+@keyframes page-in { from{opacity:0;transform:translateY(6px)} to{opacity:1;transform:none} }
+
+/* ── PAGE HEADER ─────────────────────── */
+.page-hd {
+  display: flex; align-items: flex-start; justify-content: space-between;
+  margin-bottom: 18px; flex-wrap: wrap; gap: 10px;
+}
+.page-hd-left h1 {
+  font-family: 'Outfit', sans-serif;
+  font-size: 1.2rem; font-weight: 700; color: var(--text);
+}
+.page-hd-left p { font-size: 0.78rem; color: var(--text3); margin-top: 2px; }
+
+/* ── CARD ─────────────────────────────── */
+.card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 16px;
+  box-shadow: var(--shadow-sm);
+  transition: background 0.3s, border-color 0.2s, box-shadow 0.2s;
+  min-width: 0;
+  word-break: break-word;
+  overflow: hidden;
+}
+.card:hover { box-shadow: var(--shadow); }
+.card-title {
+  font-family: 'Outfit', sans-serif;
+  font-size: 0.875rem; font-weight: 600;
+  color: var(--text);
+  margin-bottom: 14px;
+  display: flex; align-items: center; justify-content: space-between;
+}
+.card-title span { color: var(--text3); }
+.more-btn {
+  background: none; border: none; cursor: pointer;
+  color: var(--text4); font-size: 1rem; padding: 2px 5px;
+  border-radius: 4px; line-height: 1; transition: all 0.2s;
+}
+.more-btn:hover { background: var(--surface2); color: var(--text2); }
+
+/* ── GRIDS ─────────────────────────────── */
+.g2 { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+.g3 { display: grid; grid-template-columns: repeat(3,1fr); gap: 14px; }
+.g4 { display: grid; grid-template-columns: repeat(4,1fr); gap: 14px; }
+.ga { display: grid; grid-template-columns: repeat(auto-fit,minmax(200px,1fr)); gap: 14px; }
+.g2 > *, .g3 > *, .g4 > *, .ga > * { min-width: 0; }
+.mb14 { margin-bottom: 14px; }
+.mb18 { margin-bottom: 18px; }
+
+/* ── STAT CARDS ──────────────────────── */
+.kpi {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 14px 16px;
+  box-shadow: var(--shadow-sm);
+  transition: all 0.2s;
+  position: relative; overflow: hidden;
+}
+.kpi:hover { transform: translateY(-1px); box-shadow: var(--shadow); }
+.kpi-label {
+  font-size: 0.72rem; font-weight: 600; text-transform: uppercase;
+  letter-spacing: 0.04em; color: var(--text3); margin-bottom: 6px;
+}
+.kpi-val {
+  font-family: 'Outfit', sans-serif;
+  font-size: 1.7rem; font-weight: 700; color: var(--text); line-height: 1;
+}
+.kpi-val sup { font-size: 0.9rem; font-weight: 500; color: var(--text2); }
+.kpi-sub { font-size: 0.72rem; color: var(--text3); margin-top: 4px; }
+.kpi-icon {
+  position: absolute; right: 14px; top: 50%; transform: translateY(-50%);
+  font-size: 2rem; opacity: 0.1;
+}
+.kpi-stripe {
+  position: absolute; top: 0; left: 0; right: 0;
+  height: 3px; border-radius: var(--radius) var(--radius) 0 0;
+}
+
+/* ── WEATHER HERO ────────────────────── */
+.weather-hero {
+  background: var(--hero-grad);
+  border-radius: var(--radius);
+  padding: 22px 24px;
+  color: #fff;
+  position: relative; overflow: hidden;
+  box-shadow: var(--shadow);
+}
+.weather-hero::after {
+  content: '';
+  position: absolute; top: -40px; right: -40px;
+  width: 180px; height: 180px;
+  background: radial-gradient(circle, rgba(255,255,255,0.08), transparent 70%);
+  border-radius: 50%; pointer-events: none;
+}
+.wh-label {
+  font-size: 0.72rem; text-transform: uppercase; letter-spacing: 0.06em;
+  color: rgba(255,255,255,0.6); margin-bottom: 12px;
+  display: flex; align-items: center; justify-content: space-between;
+}
+.wh-more { background: none; border: none; color: rgba(255,255,255,0.5); cursor: pointer; font-size: 1rem; }
+.wh-body { display: flex; align-items: center; gap: 16px; flex-wrap: wrap; }
+.wh-icon { font-size: 3.2rem; filter: drop-shadow(0 4px 8px rgba(0,0,0,0.2)); }
+.wh-temp-block {}
+.wh-temp {
+  font-family: 'Outfit', sans-serif;
+  font-size: 3.4rem; font-weight: 800; line-height: 1;
+  color: #fff;
+}
+.wh-desc { font-size: 0.9rem; color: rgba(255,255,255,0.7); margin-top: 4px; }
+.wh-stats {
+  display: flex; gap: 20px; margin-left: auto;
+  flex-wrap: wrap;
+}
+.wh-stat { text-align: center; }
+.wh-stat-icon { font-size: 1rem; margin-bottom: 2px; color: rgba(255,255,255,0.7); }
+.wh-stat-val { font-family: 'Outfit', sans-serif; font-size: 1rem; font-weight: 700; color: #fff; }
+.wh-stat-lbl { font-size: 0.65rem; color: rgba(255,255,255,0.5); text-transform: uppercase; letter-spacing: 0.04em; }
+.wh-no-data {
+  margin-top: 10px; font-size: 0.75rem;
+  color: rgba(255,255,255,0.45);
+  background: rgba(255,255,255,0.06);
+  border: 1px solid rgba(255,255,255,0.1);
+  border-radius: 6px; padding: 6px 10px;
+  display: flex; align-items: center; gap: 6px;
+}
+
+/* ── MAP ─────────────────────────────── */
+.map-wrap {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  overflow: hidden;
+  box-shadow: var(--shadow-sm);
+}
+.map-header { padding: 12px 16px 8px; font-family: 'Outfit', sans-serif; font-size: 0.875rem; font-weight: 600; color: var(--text); border-bottom: 1px solid var(--border); }
+.map-inner {
+  height: 208px; position: relative;
+  background: #d4e5c5;
+  [data-theme="dark"] & { background: #1a2a1a; }
+}
+[data-theme="dark"] .map-inner { background: #162216; }
+.map-terrain {
+  position: absolute; inset: 0;
+  background:
+    radial-gradient(ellipse at 30% 50%, rgba(120,180,80,0.35) 0%, transparent 60%),
+    radial-gradient(ellipse at 70% 30%, rgba(80,140,60,0.3) 0%, transparent 50%),
+    radial-gradient(ellipse at 80% 70%, rgba(100,160,70,0.25) 0%, transparent 40%);
+}
+[data-theme="dark"] .map-terrain {
+  background:
+    radial-gradient(ellipse at 30% 50%, rgba(40,80,30,0.5) 0%, transparent 60%),
+    radial-gradient(ellipse at 70% 30%, rgba(30,60,20,0.5) 0%, transparent 50%),
+    radial-gradient(ellipse at 80% 70%, rgba(35,70,25,0.4) 0%, transparent 40%);
+}
+.map-grid-overlay {
+  position: absolute; inset: 0;
+  background-image:
+    linear-gradient(rgba(0,0,0,0.03) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(0,0,0,0.03) 1px, transparent 1px);
+  background-size: 32px 32px;
+}
+.map-pin {
+  position: absolute;
+  display: flex; flex-direction: column; align-items: center;
+  cursor: pointer;
+  transition: transform 0.2s;
+}
+.map-pin:hover { transform: scale(1.1); }
+.map-pin:hover .pin-popup { opacity: 1; pointer-events: auto; }
+.pin-dot {
+  width: 13px; height: 13px; border-radius: 50%;
+  border: 2.5px solid #fff; box-shadow: 0 2px 6px rgba(0,0,0,0.25);
+  position: relative; z-index: 2;
+}
+.pin-dot.online { background: #4caf50; animation: pin-pulse 2s ease-in-out infinite; }
+.pin-dot.warning { background: #f59e0b; animation: pin-pulse-amber 2s ease-in-out infinite; }
+.pin-dot.offline { background: var(--red); }
+@keyframes pin-pulse {
+  0%,100%{box-shadow:0 0 0 0 rgba(76,175,80,0.5),0 2px 6px rgba(0,0,0,0.25)}
+  50%{box-shadow:0 0 0 6px rgba(76,175,80,0),0 2px 6px rgba(0,0,0,0.25)}
+}
+@keyframes pin-pulse-amber {
+  0%,100%{box-shadow:0 0 0 0 rgba(245,158,11,0.5),0 2px 6px rgba(0,0,0,0.25)}
+  50%{box-shadow:0 0 0 6px rgba(245,158,11,0),0 2px 6px rgba(0,0,0,0.25)}
+}
+.pin-label {
+  font-size: 0.62rem; font-weight: 600; white-space: nowrap;
+  background: rgba(0,0,0,0.55); color: #fff;
+  padding: 2px 6px; border-radius: 4px;
+  margin-top: 2px;
+}
+.pin-popup {
+  position: absolute; bottom: 28px; left: 50%; transform: translateX(-50%);
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 8px; padding: 8px 12px;
+  font-size: 0.72rem; white-space: nowrap;
+  opacity: 0; pointer-events: none;
+  transition: opacity 0.2s;
+  z-index: 10;
+  box-shadow: var(--shadow);
+}
+.pin-popup strong { display: block; color: var(--text); margin-bottom: 3px; font-size: 0.78rem; }
+.pin-popup span { color: var(--text2); display: block; }
+
+/* ── CHARTS (canvas placeholder) ─────── */
+canvas { display: block; }
+.chart-empty-label {
+  text-align: center; font-size: 0.72rem;
+  color: var(--text4); margin-top: 6px;
+}
+
+/* ── FORECAST ────────────────────────── */
+.forecast-row { display: grid; grid-template-columns: repeat(7,1fr); gap: 8px; }
+.fc-day {
+  background: var(--surface2);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  padding: 10px 6px; text-align: center;
+  transition: all 0.2s; cursor: default;
+}
+.fc-day:hover { background: var(--surface3); }
+.fc-day.today { border-color: var(--blue); background: var(--blue-light); }
+.fc-name { font-size: 0.65rem; font-weight: 700; text-transform: uppercase; color: var(--text3); margin-bottom: 6px; letter-spacing: 0.04em; }
+.fc-day.today .fc-name { color: var(--blue); }
+.fc-icon { font-size: 1.4rem; margin-bottom: 5px; }
+.fc-temp { font-family: 'Outfit', sans-serif; font-size: 0.95rem; font-weight: 700; color: var(--text); }
+.fc-desc { font-size: 0.6rem; color: var(--text3); margin-top: 3px; line-height: 1.3; }
+
+/* ── ALERTS ─────────────────────────── */
+.alert-item {
+  display: flex; align-items: flex-start; gap: 10px;
+  padding: 12px 14px; border-radius: var(--radius-sm);
+  border: 1px solid transparent; margin-bottom: 8px;
+  animation: alert-slide 0.35s ease;
+  position: relative; overflow: hidden;
+}
+@keyframes alert-slide { from{opacity:0;transform:translateX(-8px)} to{opacity:1;transform:none} }
+.alert-item.critical { background: var(--red-light); border-color: rgba(239,68,68,0.25); }
+.alert-item.warning  { background: var(--amber-light); border-color: rgba(245,158,11,0.25); }
+.alert-item.info     { background: var(--blue-light); border-color: rgba(25,118,210,0.2); }
+.alert-item.critical::before,
+.alert-item.warning::before {
+  content: '';
+  position: absolute; left: 0; top: 0; bottom: 0;
+  width: 3px;
+  animation: bar-flash 1.5s ease-in-out infinite;
+}
+.alert-item.critical::before { background: var(--red); }
+.alert-item.warning::before  { background: var(--amber); }
+@keyframes bar-flash { 0%,100%{opacity:1} 50%{opacity:0.25} }
+.alert-icon { font-size: 1.1rem; flex-shrink: 0; margin-top: 1px; }
+.alert-body { flex: 1; }
+.alert-title { font-size: 0.82rem; font-weight: 600; color: var(--text); margin-bottom: 2px; }
+.alert-meta { font-size: 0.7rem; color: var(--text3); }
+.badge {
+  font-size: 0.62rem; font-weight: 700;
+  padding: 3px 8px; border-radius: 5px;
+  text-transform: uppercase; letter-spacing: 0.04em;
+  flex-shrink: 0; white-space: nowrap;
+}
+.badge-crit { background: rgba(239,68,68,0.15); color: var(--red); border: 1px solid rgba(239,68,68,0.25); }
+.badge-warn { background: rgba(245,158,11,0.15); color: var(--amber); border: 1px solid rgba(245,158,11,0.25); }
+.badge-info { background: var(--blue-light); color: var(--blue); border: 1px solid rgba(25,118,210,0.2); }
+
+/* ── STATION CARD ────────────────────── */
+.station-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 16px;
+  box-shadow: var(--shadow-sm);
+  transition: all 0.2s;
+}
+.station-card:hover { box-shadow: var(--shadow); }
+.station-card.warn { border-color: rgba(245,158,11,0.4); }
+.st-header { display: flex; align-items: flex-start; justify-content: space-between; margin-bottom: 12px; }
+.st-name { font-family: 'Outfit', sans-serif; font-size: 0.95rem; font-weight: 700; color: var(--text); }
+.st-loc { font-size: 0.7rem; color: var(--text3); margin-top: 2px; }
+.status-pill {
+  font-size: 0.65rem; font-weight: 700;
+  padding: 3px 9px; border-radius: 99px;
+  text-transform: uppercase; letter-spacing: 0.04em;
+}
+.pill-ok   { background: #e8f5e9; color: #2e7d32; border: 1px solid #a5d6a7; }
+.pill-warn { background: #fffbeb; color: #92400e; border: 1px solid #fcd34d; }
+.pill-off  { background: var(--red-light); color: var(--red); border: 1px solid rgba(239,68,68,0.3); }
+[data-theme="dark"] .pill-ok { background: rgba(76,175,80,0.12); color: #66bb6a; border-color: rgba(76,175,80,0.3); }
+[data-theme="dark"] .pill-warn { background: rgba(245,158,11,0.1); color: #fbbf24; border-color: rgba(245,158,11,0.3); }
+.sensor-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 12px; }
+.sensor-box {
+  background: var(--surface2);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-xs);
+  padding: 9px 10px;
+  position: relative;
+}
+.sensor-box.err { background: var(--red-light); border-color: rgba(239,68,68,0.3); }
+.sensor-lbl { font-size: 0.62rem; text-transform: uppercase; letter-spacing: 0.04em; color: var(--text3); margin-bottom: 3px; }
+.sensor-val { font-family: 'Outfit', sans-serif; font-size: 1.05rem; font-weight: 700; color: var(--text); }
+.sensor-box.err .sensor-val { color: var(--red); }
+.err-flag { position: absolute; top: 5px; right: 6px; font-size: 0.7rem; }
+.err-banner {
+  background: var(--red-light);
+  border: 1px solid rgba(239,68,68,0.25);
+  border-radius: var(--radius-xs);
+  padding: 8px 10px;
+  font-size: 0.72rem; color: var(--red);
+  display: flex; align-items: flex-start; gap: 6px; line-height: 1.4;
+  animation: alert-slide 0.4s ease;
+}
+.st-foot { display: flex; align-items: center; font-size: 0.7rem; color: var(--text3); gap: 8px; flex-wrap: wrap; }
+
+/* ── CROP CARD ───────────────────────── */
+.crop-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 16px;
+  box-shadow: var(--shadow-sm);
+  transition: all 0.2s;
+}
+.crop-card:hover { box-shadow: var(--shadow); }
+.crop-hd { display: flex; align-items: center; gap: 12px; margin-bottom: 14px; }
+.crop-emoji { font-size: 2.2rem; }
+.crop-name { font-family: 'Outfit', sans-serif; font-size: 0.95rem; font-weight: 700; color: var(--text); }
+.crop-stage { font-size: 0.72rem; color: var(--text3); margin-top: 2px; }
+.prog-bar { height: 5px; background: var(--surface3); border-radius: 99px; overflow: hidden; margin: 6px 0 4px; }
+.prog-fill { height: 100%; border-radius: 99px; transition: width 0.8s cubic-bezier(.4,0,.2,1); }
+.prog-lbl { font-size: 0.68rem; color: var(--text3); margin-bottom: 10px; }
+.crop-metrics { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; }
+.crop-metric { background: var(--surface2); border: 1px solid var(--border); border-radius: var(--radius-xs); padding: 8px 10px; }
+.cm-lbl { font-size: 0.62rem; text-transform: uppercase; letter-spacing: 0.04em; color: var(--text3); margin-bottom: 2px; }
+.cm-val { font-family: 'Outfit', sans-serif; font-size: 0.9rem; font-weight: 700; color: var(--text); }
+.crop-rec {
+  margin-top: 10px; border-radius: var(--radius-xs); padding: 8px 10px;
+  font-size: 0.75rem; display: flex; align-items: center; gap: 6px;
+}
+.crop-rec.green { background: var(--green-light); color: var(--green-dark); }
+.crop-rec.amber { background: var(--amber-light); color: #92400e; }
+[data-theme="dark"] .crop-rec.amber { color: var(--amber); }
+[data-theme="dark"] .crop-rec.green { color: var(--green); }
+
+/* ── TABLE ───────────────────────────── */
+.tbl { width: 100%; border-collapse: collapse; }
+.tbl th {
+  font-size: 0.68rem; font-weight: 600; text-transform: uppercase;
+  letter-spacing: 0.04em; color: var(--text3);
+  padding: 8px 12px; text-align: left;
+  border-bottom: 1px solid var(--border);
+}
+.tbl td {
+  font-size: 0.8rem; color: var(--text);
+  padding: 11px 12px; border-bottom: 1px solid var(--border);
+}
+.tbl tr:last-child td { border-bottom: none; }
+.tbl tr:hover td { background: var(--surface2); }
+
+/* ── TOGGLE ──────────────────────────── */
+.tog {
+  width: 40px; height: 22px;
+  background: var(--border2);
+  border-radius: 11px; border: none;
+  position: relative; cursor: pointer;
+  transition: background 0.25s; flex-shrink: 0;
+}
+.tog.on { background: var(--green); }
+.tog::after {
+  content: '';
+  position: absolute; top: 3px; left: 3px;
+  width: 16px; height: 16px;
+  background: #fff; border-radius: 50%;
+  transition: transform 0.25s;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.2);
+}
+.tog.on::after { transform: translateX(18px); }
+
+/* ── BUTTONS ─────────────────────────── */
+.btn {
+  display: inline-flex; align-items: center; gap: 6px;
+  padding: 7px 14px; border-radius: var(--radius-sm);
+  font-size: 0.8rem; font-weight: 600;
+  cursor: pointer; border: none;
+  font-family: 'Inter', sans-serif;
+  transition: all 0.18s ease;
+  white-space: nowrap;
+}
+.btn-primary { background: var(--green); color: #fff; }
+.btn-primary:hover { background: var(--green-dark); }
+.btn-ghost { background: var(--surface2); border: 1px solid var(--border); color: var(--text2); }
+.btn-ghost:hover { background: var(--surface3); color: var(--text); }
+.btn-danger { background: var(--red-light); border: 1px solid rgba(239,68,68,0.25); color: var(--red); }
+.btn-danger:hover { background: rgba(239,68,68,0.15); }
+.btn-sm { padding: 5px 10px; font-size: 0.72rem; }
+
+/* ── SETTINGS ─────────────────────────── */
+.settings-section-title {
+  font-size: 0.68rem; font-weight: 700; text-transform: uppercase;
+  letter-spacing: 0.06em; color: var(--text3);
+  margin-bottom: 8px; padding-bottom: 6px;
+  border-bottom: 1px solid var(--border);
+}
+.settings-row {
+  display: flex; align-items: center; gap: 12px;
+  padding: 11px 12px; border-radius: var(--radius-sm);
+  transition: background 0.18s; cursor: pointer;
+}
+.settings-row:hover { background: var(--surface2); }
+.sett-icon { font-size: 1rem; width: 22px; text-align: center; }
+.sett-lbl { flex: 1; }
+.sett-lbl strong { display: block; font-size: 0.82rem; color: var(--text); font-weight: 500; }
+.sett-lbl small { font-size: 0.7rem; color: var(--text3); }
+.sett-ctrl { flex-shrink: 0; }
+select.sett-select {
+  background: var(--surface2); border: 1px solid var(--border);
+  border-radius: var(--radius-xs); padding: 5px 8px;
+  color: var(--text); font-size: 0.78rem; font-family: 'Inter', sans-serif;
+  cursor: pointer; outline: none; transition: border-color 0.2s;
+}
+select.sett-select:focus { border-color: var(--blue); }
+
+/* ── TOAST ─────────────────────────────── */
+#toast-root {
+  position: fixed; bottom: 20px; right: 20px;
+  display: flex; flex-direction: column; gap: 8px;
+  z-index: 9999;
+}
+.toast {
+  background: var(--surface); border: 1px solid var(--border);
+  border-radius: var(--radius); padding: 12px 16px;
+  font-size: 0.82rem; color: var(--text);
+  box-shadow: var(--shadow-lg); max-width: 300px;
+  display: flex; align-items: flex-start; gap: 10px;
+  animation: toast-in 0.3s ease;
+}
+@keyframes toast-in { from{opacity:0;transform:translateX(24px)} to{opacity:1;transform:none} }
+.toast.ok   { border-left: 3px solid var(--green); }
+.toast.err  { border-left: 3px solid var(--red); }
+.toast.warn { border-left: 3px solid var(--amber); }
+.toast.inf  { border-left: 3px solid var(--blue); }
+
+/* ── NOTIF PANEL ─────────────────────── */
+#notif-panel {
+  position: fixed; top: 64px; right: 14px;
+  width: 310px; background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow-lg); z-index: 300;
+  display: none; animation: page-in 0.2s ease;
+}
+#notif-panel.open { display: block; }
+.np-hd {
+  padding: 12px 14px; border-bottom: 1px solid var(--border);
+  display: flex; align-items: center; justify-content: space-between;
+  font-family: 'Outfit', sans-serif; font-size: 0.875rem; font-weight: 600; color: var(--text);
+}
+.np-clear { font-size: 0.72rem; color: var(--blue); cursor: pointer; font-weight: 400; font-family: 'Inter', sans-serif; }
+.np-list { max-height: 260px; overflow-y: auto; }
+.np-item {
+  display: flex; align-items: flex-start; gap: 10px;
+  padding: 10px 14px; border-bottom: 1px solid var(--border);
+  cursor: pointer; transition: background 0.18s;
+}
+.np-item:hover { background: var(--surface2); }
+.np-item:last-child { border-bottom: none; }
+.np-icon { font-size: 0.95rem; flex-shrink: 0; margin-top: 1px; }
+.np-text { font-size: 0.76rem; color: var(--text); line-height: 1.35; }
+.np-time { font-size: 0.66rem; color: var(--text3); margin-top: 2px; }
+
+/* ── OVERLAY ─────────────────────────── */
+.overlay { display:none; position:fixed; inset:0; background:rgba(0,0,0,0.35); z-index:150; }
+.overlay.open { display:block; }
+
+/* ── REPORT ROW ─────────────────────── */
+.report-row {
+  display: flex; align-items: center; gap: 12px;
+  padding: 12px; border-bottom: 1px solid var(--border);
+  cursor: pointer; transition: background 0.18s;
+  border-radius: var(--radius-sm);
+}
+.report-row:hover { background: var(--surface2); }
+.report-row:last-child { border-bottom: none; }
+.report-icon { width: 34px; height: 34px; border-radius: 8px; display:flex;align-items:center;justify-content:center; font-size:1rem; flex-shrink:0; }
+.report-info { flex:1; }
+.report-name { font-size: 0.82rem; font-weight: 600; color: var(--text); }
+.report-date { font-size: 0.7rem; color: var(--text3); margin-top: 2px; }
+.report-size { font-size: 0.72rem; color: var(--text2); }
+.dl-btn {
+  background: var(--surface2); border: 1px solid var(--border);
+  border-radius: 6px; padding: 5px 10px;
+  font-size: 0.72rem; font-weight: 600; color: var(--text2);
+  cursor: pointer; font-family: 'Inter', sans-serif;
+  transition: all 0.18s;
+}
+.dl-btn:hover { background: var(--surface3); color: var(--text); }
+
+/* ── SOIL LEGEND ─────────────────────── */
+.soil-legends { display:flex; gap:14px; margin-bottom:10px; flex-wrap:wrap; }
+.sl { display:flex; align-items:center; gap:5px; font-size:0.72rem; color:var(--text2); }
+.sl-dot { width:10px; height:3px; border-radius:2px; }
+
+/* ── CONNECTIVITY STATUS ─────────────── */
+.conn-status-bar {
+  display: flex; align-items: center; gap: 10px;
+  background: var(--surface); border: 1px solid var(--border);
+  border-radius: var(--radius); padding: 12px 16px;
+  margin-bottom: 14px; box-shadow: var(--shadow-sm); flex-wrap: wrap;
+}
+.conn-dot { width: 10px; height: 10px; border-radius: 50%; flex-shrink: 0; }
+.conn-dot.connected { background: var(--green); animation: pin-pulse 2s ease-in-out infinite; }
+.conn-dot.disconnected { background: var(--red); }
+.conn-dot.connecting { background: var(--amber); animation: badge-pulse 1s ease-in-out infinite; }
+.conn-protocol-badge {
+  font-size: 0.68rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em;
+  padding: 3px 8px; border-radius: 5px; flex-shrink: 0;
+}
+.badge-mqtt { background: #e3f2fd; color: #1565c0; border: 1px solid #90caf9; }
+.badge-ws { background: #e8f5e9; color: #2e7d32; border: 1px solid #a5d6a7; }
+.badge-push { background: #fce4ec; color: #ad1457; border: 1px solid #f48fb1; }
+[data-theme="dark"] .badge-mqtt { background: rgba(21,101,192,0.15); color: #64b5f6; border-color: rgba(100,181,246,0.3); }
+[data-theme="dark"] .badge-ws { background: rgba(46,125,50,0.15); color: #81c784; border-color: rgba(129,199,132,0.3); }
+[data-theme="dark"] .badge-push { background: rgba(173,20,87,0.15); color: #f48fb1; border-color: rgba(244,143,177,0.3); }
+.conn-log {
+  background: var(--surface2); border: 1px solid var(--border);
+  border-radius: var(--radius-sm); padding: 10px 12px;
+  font-family: 'Courier New', monospace; font-size: 0.72rem;
+  max-height: 160px; overflow-y: auto; color: var(--text2); line-height: 1.7;
+}
+.log-ts { color: var(--text3); margin-right: 6px; }
+.log-ok { color: var(--green); }
+.log-err { color: var(--red); }
+.log-warn { color: var(--amber); }
+.log-info { color: var(--blue); }
+.latency-bar { height: 4px; background: var(--surface3); border-radius: 99px; overflow: hidden; margin-top: 5px; }
+.latency-fill { height: 100%; border-radius: 99px; transition: width 0.5s ease; }
+/* ── AI MODULE ───────────────────────── */
+.anomaly-item {
+  background: var(--surface2); border: 1px solid var(--border);
+  border-radius: var(--radius-sm); padding: 12px 14px;
+  display: flex; align-items: flex-start; gap: 10px;
+  margin-bottom: 8px; transition: all 0.2s;
+  position: relative; overflow: hidden;
+}
+.anomaly-item.high { border-color: rgba(239,68,68,0.35); background: var(--red-light); }
+.anomaly-item.medium { border-color: rgba(245,158,11,0.35); background: var(--amber-light); }
+.anomaly-item.low { border-color: rgba(25,118,210,0.2); background: var(--blue-light); }
+.anomaly-item.high::before { content:''; position:absolute; left:0; top:0; bottom:0; width:3px; background:var(--red); animation: bar-flash 1.5s ease-in-out infinite; }
+.anomaly-item.medium::before { content:''; position:absolute; left:0; top:0; bottom:0; width:3px; background:var(--amber); animation: bar-flash 2s ease-in-out infinite; }
+.anomaly-icon { font-size: 1.2rem; flex-shrink: 0; margin-top: 1px; }
+.anomaly-body { flex: 1; }
+.anomaly-title { font-size: 0.82rem; font-weight: 600; color: var(--text); margin-bottom: 2px; }
+.anomaly-detail { font-size: 0.72rem; color: var(--text3); }
+.anomaly-score { font-family: 'Outfit', sans-serif; font-size: 1.1rem; font-weight: 700; flex-shrink: 0; }
+.score-high { color: var(--red); } .score-medium { color: var(--amber); } .score-low { color: var(--blue); }
+.sensor-diag {
+  background: var(--surface2); border: 1px solid var(--border);
+  border-radius: var(--radius-sm); padding: 12px 14px;
+  display: flex; align-items: center; gap: 12px; margin-bottom: 8px; transition: all 0.2s;
+}
+.sensor-diag.ok { border-color: rgba(76,175,80,0.3); }
+.sensor-diag.fault { border-color: rgba(239,68,68,0.35); background: var(--red-light); }
+.sensor-diag.degraded { border-color: rgba(245,158,11,0.35); background: var(--amber-light); }
+.diag-icon { font-size: 1.4rem; flex-shrink: 0; }
+.diag-body { flex: 1; }
+.diag-name { font-size: 0.82rem; font-weight: 600; color: var(--text); }
+.diag-desc { font-size: 0.7rem; color: var(--text3); margin-top: 2px; }
+.diag-bar { height: 4px; background: var(--surface3); border-radius: 99px; overflow: hidden; margin-top: 5px; }
+.diag-bar-fill { height: 100%; border-radius: 99px; transition: width 1s ease; }
+.diag-pct { font-family: 'Outfit', sans-serif; font-size: 1rem; font-weight: 700; flex-shrink: 0; }
+.ai-chip {
+  display: inline-flex; align-items: center; gap: 5px;
+  background: linear-gradient(135deg, #e3f2fd, #e8f5e9);
+  border: 1px solid #90caf9; border-radius: 99px;
+  padding: 4px 10px; font-size: 0.68rem; font-weight: 600; color: #1565c0;
+}
+[data-theme="dark"] .ai-chip { background: linear-gradient(135deg, rgba(21,101,192,0.15), rgba(46,125,50,0.15)); border-color: rgba(100,181,246,0.3); color: #64b5f6; }
+.ai-pulse { width: 6px; height: 6px; border-radius: 50%; background: var(--green); animation: live-blink 1s ease-in-out infinite; }
+@keyframes live-blink { 0%,100%{opacity:1} 50%{opacity:0.2} }
+.model-stat { background: var(--surface2); border: 1px solid var(--border); border-radius: var(--radius-sm); padding: 12px; text-align: center; }
+.model-stat-val { font-family: 'Outfit', sans-serif; font-size: 1.4rem; font-weight: 700; color: var(--text); }
+.model-stat-lbl { font-size: 0.68rem; color: var(--text3); margin-top: 2px; }
+/* ── RESPONSIVE ─────────────────────── */
+@media(max-width:1100px){
+  .g4{ grid-template-columns:1fr 1fr; }
+  .g3{ grid-template-columns:1fr 1fr; }
+  .forecast-row{ grid-template-columns:repeat(4,1fr); }
+}
+@media(max-width:768px){
+  :root{ --sidebar-w:0px; }
+  .sidebar{ transform:translateX(-210px); --sidebar-w:210px; }
+  .sidebar.open{ transform:translateX(0); }
+  .main{ margin-left:0; }
+  .hamburger{ display:block; }
+  .g2{ grid-template-columns:1fr; }
+  .g3{ grid-template-columns:1fr; }
+  .g4{ grid-template-columns:1fr 1fr; }
+  .forecast-row{ grid-template-columns:repeat(3,1fr); }
+  .wh-stats{ display:none; }
+  .theme-toggle span:last-child{ display:none; }
+}
+@media(max-width:480px){
+  .content{ padding:12px 14px; }
+  .g4{ grid-template-columns:1fr; }
+  .forecast-row{ grid-template-columns:repeat(2,1fr); }
+  .sensor-grid{ grid-template-columns:1fr 1fr; }
+}
+</style>
+</head>
+<body>
+<div class="app">
+
+<!-- ═══ SIDEBAR ═══════════════════════ -->
+<aside class="sidebar" id="sidebar">
+  <div class="sidebar-logo">
+    <div class="logo-mark" style="background:#0d2a4a;padding:5px;"><img src="data:image/png;base64,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" alt="MeteoX" style="width:100%;height:100%;object-fit:contain;"></div>
+    <div class="logo-text">
+      <small>Inteligencia Climática para tu Cultivo</small>
+    </div>
+  </div>
+
+  <nav class="nav">
+    <a class="nav-item active" data-page="dashboard" onclick="nav('dashboard',this)">
+      <span class="nav-icon"><i data-lucide="layout-grid" class="inline-ic"></i></span> Panel de Control
+    </a>
+    <a class="nav-item" data-page="estaciones" onclick="nav('estaciones',this)">
+      <span class="nav-icon"><i data-lucide="radio-tower"></i></span> Estaciones
+    </a>
+    <a class="nav-item" data-page="usuarios" onclick="nav('usuarios',this)">
+      <span class="nav-icon"><i data-lucide="users"></i></span> Usuarios
+    </a>
+    <a class="nav-item" data-page="prevision" onclick="nav('prevision',this)">
+      <span class="nav-icon"><i data-lucide="calendar-days"></i></span> Previsión
+    </a>
+    <a class="nav-item" data-page="cultivos" onclick="nav('cultivos',this)">
+      <span class="nav-icon"><i data-lucide="wheat"></i></span> Cultivos
+    </a>
+    <a class="nav-item" data-page="alertas" onclick="nav('alertas',this)">
+      <span class="nav-icon"><i data-lucide="bell"></i></span> Alertas
+      <span class="nav-badge" id="badge-count" style="display:none">0</span>
+    </a>
+    <a class="nav-item" data-page="reportes" onclick="nav('reportes',this)">
+      <span class="nav-icon"><i data-lucide="clipboard-list"></i></span> Reportes
+    </a>
+    <a class="nav-item" data-page="configuraciones" onclick="nav('configuraciones',this)">
+      <span class="nav-icon"><i data-lucide="settings"></i></span> Configuraciones
+    </a>
+    <div style="height:1px;background:var(--border);margin:8px 4px;"></div>
+    <div style="font-size:0.6rem;font-weight:700;text-transform:uppercase;letter-spacing:0.07em;color:var(--text4);padding:4px 12px 2px;">Fase 1 — IoT</div>
+    <a class="nav-item" data-page="conectividad" onclick="nav('conectividad',this)">
+      <span class="nav-icon"><i data-lucide="plug-zap"></i></span> Conectividad
+      <span class="nav-badge" id="badge-conn" style="background:var(--amber);display:none">!</span>
+    </a>
+    <div style="font-size:0.6rem;font-weight:700;text-transform:uppercase;letter-spacing:0.07em;color:var(--text4);padding:6px 12px 2px;">Fase 2 — IA</div>
+    <a class="nav-item" data-page="inteligencia" onclick="nav('inteligencia',this)">
+      <span class="nav-icon"><i data-lucide="brain-circuit"></i></span> Inteligencia IA
+    </a>
+  </nav>
+
+  <div class="sidebar-bottom">
+    <div class="user-row">
+      <div class="user-avatar" id="sidebar-avatar">—</div>
+      <div class="user-info">
+        <strong id="sidebar-nombre">—</strong>
+        <small id="sidebar-rol">—</small>
+      </div>
+    </div>
+    <a class="nav-item" onclick="logout()" style="color:var(--red);">
+      <span class="nav-icon"><i data-lucide="power" class="inline-ic"></i></span> Cerrar Sesión
+    </a>
+  </div>
+</aside>
+
+<div class="overlay" id="overlay" onclick="closeSidebar()"></div>
+
+<!-- ═══ MAIN ════════════════════════ -->
+<div class="main">
+  <!-- HEADER -->
+  <header class="header">
+    <button class="hamburger" onclick="toggleSidebar()"><i data-lucide="menu" class="inline-ic"></i></button>
+
+    <div class="search-wrap">
+      <span style="color:var(--text3);font-size:0.85rem"><i data-lucide="search" class="inline-ic"></i></span>
+      <input type="text" placeholder="Buscar..." id="search-inp" oninput="onSearch(this.value)">
+    </div>
+
+    <div class="header-right">
+      <!-- Dark mode toggle -->
+      <button class="theme-toggle" onclick="toggleTheme()" id="theme-btn">
+        <span id="theme-icon"><i data-lucide="moon" class="inline-ic"></i></span>
+        <span id="theme-label">Modo oscuro</span>
+      </button>
+
+      <button class="icon-btn" id="notif-btn" onclick="toggleNotif()">
+        <i data-lucide="bell" class="inline-ic"></i>
+        <span class="notif-dot" id="notif-dot"></span>
+      </button>
+
+      <div style="position:relative;">
+        <div style="display:flex;align-items:center;gap:8px;padding:4px 8px;border-radius:8px;border:1px solid var(--border);background:var(--surface2);cursor:pointer" onclick="toggleUserMenu(event)">
+          <div class="user-avatar" style="width:26px;height:26px;font-size:0.65rem" id="header-avatar">—</div>
+          <span style="font-size:0.78rem;font-weight:500;color:var(--text)" id="header-nombre">—</span>
+          <span style="font-size:0.7rem;color:var(--text3)">▾</span>
+        </div>
+        <div id="user-menu" style="display:none;position:absolute;right:0;top:calc(100% + 8px);background:var(--surface);border:1px solid var(--border);border-radius:10px;box-shadow:var(--shadow-lg);min-width:180px;z-index:300;overflow:hidden;">
+          <div style="padding:10px 14px;border-bottom:1px solid var(--border);">
+            <strong style="display:block;font-size:0.8rem;color:var(--text);" id="menu-nombre">—</strong>
+            <small style="font-size:0.7rem;color:var(--text3);" id="menu-email">—</small>
+          </div>
+          <div style="padding:9px 14px;font-size:0.8rem;color:var(--text2);cursor:pointer;" onmouseover="this.style.background='var(--surface2)'" onmouseout="this.style.background='transparent'" onclick="nav('configuraciones', document.querySelector('[data-page=configuraciones]')); toggleUserMenu()"><i data-lucide="settings" class="inline-ic"></i> Configuraciones</div>
+          <div style="padding:9px 14px;font-size:0.8rem;color:var(--red);cursor:pointer;border-top:1px solid var(--border);" onmouseover="this.style.background='var(--red-light)'" onmouseout="this.style.background='transparent'" onclick="logout()"><i data-lucide="power" class="inline-ic"></i> Cerrar Sesión</div>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <!-- NOTIF PANEL -->
+  <div id="notif-panel">
+    <div class="np-hd">
+      Notificaciones
+      <span class="np-clear" onclick="clearNotifs()">Limpiar todo</span>
+    </div>
+    <div class="np-list" id="np-list">
+      <div style="padding:18px;text-align:center;font-size:0.78rem;color:var(--text3)">Cargando...</div>
+    </div>
+  </div>
+
+  <!-- CONTENT -->
+  <main class="content">
+
+  <!-- ══ PANEL DE CONTROL ══════════════ -->
+  <div class="page active" id="page-dashboard">
+    <div class="page-hd">
+      <div class="page-hd-left">
+        <h1>Panel de Control</h1>
+        <p>Resumen en tiempo real de tu red de estaciones</p>
+      </div>
+      <span id="clock" style="font-size:0.78rem;color:var(--text3);padding-top:4px;"></span>
+    </div>
+
+    <!-- Row 1: Weather hero + Map -->
+    <div class="g2 mb18">
+      <div class="weather-hero">
+        <div class="wh-label">
+          Resumen del Clima Actual
+          <button class="wh-more">•••</button>
+        </div>
+        <div class="wh-body">
+          <div class="wh-icon"><i data-lucide="cloud-sun" class="inline-ic"></i></div>
+          <div class="wh-temp-block">
+            <div class="wh-temp" id="wh-temp">— °C</div>
+            <div class="wh-desc" id="wh-desc">Sin conexión a estación</div>
+          </div>
+          <div class="wh-stats">
+            <div class="wh-stat">
+              <div class="wh-stat-icon"><i data-lucide="droplet" class="inline-ic"></i></div>
+              <div class="wh-stat-val" id="wh-hum">—</div>
+              <div class="wh-stat-lbl">Humedad</div>
+            </div>
+            <div class="wh-stat">
+              <div class="wh-stat-icon"><i data-lucide="wind" class="inline-ic"></i></div>
+              <div class="wh-stat-val" id="wh-wind">— km/h</div>
+              <div class="wh-stat-lbl">Viento</div>
+            </div>
+          </div>
+        </div>
+        <div class="wh-no-data" id="wh-nodata"><i data-lucide="triangle-alert" class="inline-ic"></i> Conecta tus estaciones para ver datos en tiempo real</div>
+      </div>
+
+      <div class="map-wrap">
+        <div class="map-header"><i data-lucide="map-pin" class="inline-ic"></i> Ubicación de Estaciones</div>
+        <div class="map-inner">
+          <iframe id="stations-map-frame"
+            src="https://maps.google.com/maps?q=19.4267,-99.1233&t=k&z=16&output=embed"
+            style="position:absolute;inset:0;width:100%;height:100%;border:0;"
+            loading="lazy" referrerpolicy="no-referrer-when-downgrade"
+            title="Mapa satelital de estaciones"></iframe>
+          <div id="map-pins"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Row 2: KPIs -->
+    <div class="g4 mb18">
+      <div class="kpi">
+        <div class="kpi-stripe" style="background:linear-gradient(90deg,#4caf50,#66bb6a)"></div>
+        <div class="kpi-label">Temperatura</div>
+        <div class="kpi-val" id="kpi-temp">— <sup>°C</sup></div>
+        <div class="kpi-sub" id="kpi-temp-sub">Sin conexión</div>
+        <div class="kpi-icon"><i data-lucide="thermometer" class="inline-ic"></i></div>
+      </div>
+      <div class="kpi">
+        <div class="kpi-stripe" style="background:linear-gradient(90deg,#1976d2,#42a5f5)"></div>
+        <div class="kpi-label">Humedad Aire</div>
+        <div class="kpi-val" id="kpi-hum">— <sup>%</sup></div>
+        <div class="kpi-sub" id="kpi-hum-sub">Sin conexión</div>
+        <div class="kpi-icon"><i data-lucide="droplet" class="inline-ic"></i></div>
+      </div>
+      <div class="kpi">
+        <div class="kpi-stripe" style="background:linear-gradient(90deg,#f59e0b,#fb923c)"></div>
+        <div class="kpi-label">Precipitación</div>
+        <div class="kpi-val" id="kpi-precip">— <sup>mm</sup></div>
+        <div class="kpi-sub" id="kpi-precip-sub">Sin conexión</div>
+        <div class="kpi-icon"><i data-lucide="cloud-rain" class="inline-ic"></i></div>
+      </div>
+      <div class="kpi">
+        <div class="kpi-stripe" style="background:linear-gradient(90deg,#009688,#4db6ac)"></div>
+        <div class="kpi-label">Viento</div>
+        <div class="kpi-val" id="kpi-wind">— <sup>km/h</sup></div>
+        <div class="kpi-sub" id="kpi-wind-sub">Sin conexión</div>
+        <div class="kpi-icon"><i data-lucide="wind" class="inline-ic"></i></div>
+      </div>
+    </div>
+
+    <!-- Row 3: Charts -->
+    <div class="g3 mb18">
+      <div class="card">
+        <div class="card-title">Humedad del Suelo <button class="more-btn" onclick="toast('info','Sin datos — conecta sensores')">•••</button></div>
+        <div class="soil-legends">
+          <div class="sl"><div class="sl-dot" style="background:#1976d2"></div>10cm: —%</div>
+          <div class="sl"><div class="sl-dot" style="background:#4caf50"></div>30cm: —%</div>
+          <div class="sl"><div class="sl-dot" style="background:#f59e0b"></div>40cm: —%</div>
+        </div>
+        <canvas id="c-soil" height="88"></canvas>
+        <div class="chart-empty-label">Sin datos — conecta tus sensores</div>
+      </div>
+
+      <div class="card">
+        <div class="card-title">Precipitación <button class="more-btn">•••</button></div>
+        <div style="margin-bottom:8px">
+          <div style="font-size:0.68rem;color:var(--text3)">Total 24h:</div>
+          <div style="font-family:'Outfit',sans-serif;font-size:1.5rem;font-weight:700;color:var(--text)">— mm</div>
+        </div>
+        <canvas id="c-precip" height="88"></canvas>
+        <div class="chart-empty-label">Sin datos</div>
+      </div>
+
+      <div class="card">
+        <div class="card-title">Viento y Ráfagas <button class="more-btn">•••</button></div>
+        <div style="margin-bottom:8px">
+          <div style="font-size:0.68rem;color:var(--text3)">Ráfagas:</div>
+          <div style="font-family:'Outfit',sans-serif;font-size:1.5rem;font-weight:700;color:var(--text)">— km/h</div>
+        </div>
+        <canvas id="c-wind" height="88"></canvas>
+        <div class="chart-empty-label">Sin datos</div>
+      </div>
+    </div>
+
+    <!-- Row 4: Forecast + Alerts + Crop status -->
+    <div class="mb18">
+      <div class="card mb14">
+        <div class="card-title"><i data-lucide="calendar-days" class="inline-ic"></i> Previsión Semanal <button class="more-btn" onclick="nav('prevision',null)">Ver →</button></div>
+        <div class="forecast-row">
+          <div class="fc-day today"><div class="fc-name">Hoy</div><div class="fc-icon"><i data-lucide="cloud-sun" class="inline-ic"></i></div><div class="fc-temp">—°</div><div class="fc-desc">Sin datos</div></div>
+          <div class="fc-day"><div class="fc-name">Mar</div><div class="fc-icon"><i data-lucide="cloud-sun" class="inline-ic"></i></div><div class="fc-temp">—°</div><div class="fc-desc">—</div></div>
+          <div class="fc-day"><div class="fc-name">Mié</div><div class="fc-icon"><i data-lucide="sun" class="inline-ic"></i></div><div class="fc-temp">—°</div><div class="fc-desc">—</div></div>
+          <div class="fc-day"><div class="fc-name">Jue</div><div class="fc-icon"><i data-lucide="cloud" class="inline-ic"></i></div><div class="fc-temp">—°</div><div class="fc-desc">—</div></div>
+          <div class="fc-day"><div class="fc-name">Vie</div><div class="fc-icon"><i data-lucide="cloud-drizzle" class="inline-ic"></i></div><div class="fc-temp">—°</div><div class="fc-desc">—</div></div>
+          <div class="fc-day"><div class="fc-name">Sáb</div><div class="fc-icon"><i data-lucide="cloud-rain" class="inline-ic"></i></div><div class="fc-temp">—°</div><div class="fc-desc">—</div></div>
+          <div class="fc-day"><div class="fc-name">Dom</div><div class="fc-icon"><i data-lucide="cloud-sun" class="inline-ic"></i></div><div class="fc-temp">—°</div><div class="fc-desc">—</div></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="g2">
+      <div class="card">
+        <div class="card-title"><i data-lucide="bell" class="inline-ic"></i> Alertas y Notificaciones <button class="more-btn" onclick="nav('alertas',null)">Ver todo →</button></div>
+        <div id="dash-alerts-list"><div style="padding:14px;text-align:center;font-size:0.78rem;color:var(--text3)">Cargando...</div></div>
+      </div>
+
+      <div class="card">
+        <div class="card-title"><i data-lucide="sprout" class="inline-ic"></i> Estado de Cultivos <button class="more-btn" onclick="nav('cultivos',null)">Ver →</button></div>
+        <div style="padding:14px;text-align:center;font-size:0.78rem;color:var(--text3)">
+          Módulo de cultivos aún no disponible — requiere el backend de gestión de cultivos.
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══ ESTACIONES ════════════════════ -->
+  <div class="page" id="page-estaciones">
+    <div class="page-hd">
+      <div class="page-hd-left"><h1>Estaciones</h1><p>Gestión y monitoreo de estaciones meteorológicas</p></div>
+      <button class="btn btn-primary" onclick="toast('warn','Registrar estaciones aún no está disponible — falta el endpoint de creación en el backend.')">＋ Nueva Estación</button>
+    </div>
+
+    <div class="g4 mb18" id="est-kpis">
+      <div class="kpi"><div class="kpi-stripe" style="background:#4caf50"></div><div class="kpi-label">Online</div><div class="kpi-val" id="kpi-est-online">—</div><div class="kpi-sub">Estaciones activas</div><div class="kpi-icon"><i data-lucide="check" class="inline-ic"></i></div></div>
+      <div class="kpi"><div class="kpi-stripe" style="background:#f59e0b"></div><div class="kpi-label">Advertencia</div><div class="kpi-val" id="kpi-est-warn">—</div><div class="kpi-sub">Sensor con falla</div><div class="kpi-icon"><i data-lucide="triangle-alert" class="inline-ic"></i></div></div>
+      <div class="kpi"><div class="kpi-stripe" style="background:#ef4444"></div><div class="kpi-label">Offline</div><div class="kpi-val" id="kpi-est-off">—</div><div class="kpi-sub">Sin conexión</div><div class="kpi-icon">X</div></div>
+      <div class="kpi"><div class="kpi-stripe" style="background:#1976d2"></div><div class="kpi-label">Total</div><div class="kpi-val" id="kpi-est-total">—</div><div class="kpi-sub">Registradas</div><div class="kpi-icon"><i data-lucide="radio-tower" class="inline-ic"></i></div></div>
+    </div>
+
+    <div class="g3 mb18" id="estaciones-cards">
+      <div style="padding:14px;text-align:center;font-size:0.78rem;color:var(--text3)">Cargando...</div>
+    </div>
+
+    <div class="card">
+      <div class="card-title"><i data-lucide="microscope" class="inline-ic"></i> Registro de Sensores</div>
+      <table class="tbl">
+        <thead><tr><th>Sensor</th><th>Estación</th><th>Tipo</th><th>Último Valor</th><th>Estado</th></tr></thead>
+        <tbody id="sensores-tbody">
+          <tr><td colspan="5" style="text-align:center;color:var(--text3)">Cargando...</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- ══ USUARIOS (heartbeat de estaciones) ═════ -->
+  <div class="page" id="page-usuarios">
+    <div class="page-hd">
+      <div class="page-hd-left"><h1>Usuarios</h1><p>Estado real de conexión de la estación asignada a cada agricultor</p></div>
+    </div>
+
+    <div class="card mb18" id="usuarios-tabla-wrap">
+      <div class="card-title"><i data-lucide="users" class="inline-ic"></i> Agricultores y sus estaciones</div>
+      <table class="tbl">
+        <thead><tr><th>Agricultor</th><th>Estación</th><th>Estado</th><th>Último dato</th><th>Sensores</th></tr></thead>
+        <tbody id="usuarios-tbody">
+          <tr><td colspan="5" style="text-align:center;color:var(--text3)">Cargando...</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <!-- Panel de detalle — oculto hasta que se selecciona una fila -->
+    <div class="card" id="usuario-detalle" style="display:none">
+      <div class="card-title">
+        <i data-lucide="user-round" class="inline-ic"></i> <span id="ud-nombre">—</span>
+        <button class="btn btn-ghost btn-sm" style="margin-left:auto" onclick="document.getElementById('usuario-detalle').style.display='none'">✕ Cerrar</button>
+      </div>
+
+      <div class="g4 mb18">
+        <div class="kpi"><div class="kpi-stripe" style="background:#1976d2"></div><div class="kpi-label">Estación</div><div class="kpi-val" id="ud-estacion" style="font-size:1rem">—</div><div class="kpi-sub" id="ud-estacion-id">—</div></div>
+        <div class="kpi"><div class="kpi-stripe" id="ud-estado-stripe" style="background:#4caf50"></div><div class="kpi-label">Estado de la estación</div><div class="kpi-val" id="ud-estado" style="font-size:1rem">—</div><div class="kpi-sub" id="ud-ultima">—</div></div>
+        <div class="kpi"><div class="kpi-stripe" style="background:#009688"></div><div class="kpi-label">GPS</div><div class="kpi-val" id="ud-gps" style="font-size:0.9rem">—</div><div class="kpi-sub" id="ud-gps-sat">—</div></div>
+        <div class="kpi"><div class="kpi-stripe" style="background:#f59e0b"></div><div class="kpi-label">Sensores OK</div><div class="kpi-val" id="ud-sensores-ok">—</div><div class="kpi-sub">de los instalados</div></div>
+      </div>
+
+      <div class="g2 mb18">
+        <div class="sensor-box"><div class="sensor-lbl"><i data-lucide="thermometer" class="inline-ic"></i> Temperatura</div><div class="sensor-val" id="ud-temp">—</div></div>
+        <div class="sensor-box"><div class="sensor-lbl"><i data-lucide="droplet" class="inline-ic"></i> Humedad ambiental</div><div class="sensor-val" id="ud-humedad">—</div></div>
+        <div class="sensor-box"><div class="sensor-lbl"><i data-lucide="sprout" class="inline-ic"></i> Humedad del suelo</div><div class="sensor-val" id="ud-suelo">—</div></div>
+        <div class="sensor-box"><div class="sensor-lbl"><i data-lucide="cloud-rain" class="inline-ic"></i> Precipitación</div><div class="sensor-val" id="ud-precip">—</div></div>
+        <div class="sensor-box"><div class="sensor-lbl"><i data-lucide="wind" class="inline-ic"></i> Calidad del aire</div><div class="sensor-val" id="ud-aire">—</div></div>
+        <div class="sensor-box"><div class="sensor-lbl"><i data-lucide="flame" class="inline-ic"></i> Humo</div><div class="sensor-val" id="ud-humo">—</div></div>
+        <div class="sensor-box"><div class="sensor-lbl"><i data-lucide="map-pin" class="inline-ic"></i> Latitud / Longitud</div><div class="sensor-val" id="ud-latlon" style="font-size:0.95rem">—</div></div>
+        <div class="sensor-box"><div class="sensor-lbl"><i data-lucide="satellite" class="inline-ic"></i> Satélites</div><div class="sensor-val" id="ud-satelites">—</div></div>
+      </div>
+
+      <div class="card" style="box-shadow:none;border:1px solid var(--border);padding:0">
+        <div class="card-title" style="padding:14px 16px 0"><i data-lucide="cpu" class="inline-ic"></i> Estado individual de cada sensor</div>
+        <div id="ud-sensores-lista" style="padding:8px 16px 16px">
+          <div style="padding:14px;text-align:center;font-size:0.78rem;color:var(--text3)">Selecciona un agricultor de la tabla.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══ PREVISIÓN ═════════════════════ -->
+  <div class="page" id="page-prevision">
+    <div class="page-hd">
+      <div class="page-hd-left"><h1>Previsión Meteorológica</h1><p>Pronóstico extendido y análisis de tendencias</p></div>
+    </div>
+
+    <div class="g4 mb18">
+      <div class="kpi"><div class="kpi-stripe" style="background:#ef4444"></div><div class="kpi-label">Temp. Máx.</div><div class="kpi-val">—<sup>°C</sup></div><div class="kpi-sub">Sin conexión</div></div>
+      <div class="kpi"><div class="kpi-stripe" style="background:#1976d2"></div><div class="kpi-label">Temp. Mín.</div><div class="kpi-val">—<sup>°C</sup></div><div class="kpi-sub">Sin conexión</div></div>
+      <div class="kpi"><div class="kpi-stripe" style="background:#009688"></div><div class="kpi-label">Prob. Lluvia</div><div class="kpi-val">—<sup>%</sup></div><div class="kpi-sub">Sin conexión</div></div>
+      <div class="kpi"><div class="kpi-stripe" style="background:#f59e0b"></div><div class="kpi-label">Índice UV</div><div class="kpi-val">—</div><div class="kpi-sub">Sin conexión</div></div>
+    </div>
+
+    <div class="card mb18">
+      <div class="card-title">Pronóstico 7 Días</div>
+      <div style="overflow-x:auto">
+        <table class="tbl">
+          <thead><tr><th>Día</th><th>Condición</th><th>Máx.</th><th>Mín.</th><th>Humedad</th><th>Lluvia</th><th>Viento</th><th>UV</th></tr></thead>
+          <tbody>
+            <tr><td>Lunes</td><td><i data-lucide="cloud-sun" class="inline-ic"></i> Parcialmente nublado</td><td>—°C</td><td>—°C</td><td>—%</td><td>— mm</td><td>— km/h</td><td>—</td></tr>
+            <tr><td>Martes</td><td><i data-lucide="cloud-sun" class="inline-ic"></i> Mayormente soleado</td><td>—°C</td><td>—°C</td><td>—%</td><td>0 mm</td><td>— km/h</td><td>—</td></tr>
+            <tr><td>Miércoles</td><td><i data-lucide="sun" class="inline-ic"></i> Soleado</td><td>—°C</td><td>—°C</td><td>—%</td><td>0 mm</td><td>— km/h</td><td>—</td></tr>
+            <tr><td>Jueves</td><td><i data-lucide="cloud" class="inline-ic"></i> Nublado</td><td>—°C</td><td>—°C</td><td>—%</td><td>— mm</td><td>— km/h</td><td>—</td></tr>
+            <tr><td>Viernes</td><td><i data-lucide="cloud-drizzle" class="inline-ic"></i> Lluvia ligera</td><td>—°C</td><td>—°C</td><td>—%</td><td>— mm</td><td>— km/h</td><td>—</td></tr>
+            <tr><td>Sábado</td><td><i data-lucide="cloud-rain" class="inline-ic"></i> Lluvioso</td><td>—°C</td><td>—°C</td><td>—%</td><td>— mm</td><td>— km/h</td><td>—</td></tr>
+            <tr><td>Domingo</td><td><i data-lucide="cloud-sun" class="inline-ic"></i> Parcialmente nublado</td><td>—°C</td><td>—°C</td><td>—%</td><td>— mm</td><td>— km/h</td><td>—</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <div class="g2">
+      <div class="card">
+        <div class="card-title"><i data-lucide="thermometer" class="inline-ic"></i> Temperatura — 7 días</div>
+        <canvas id="c-temp-week" height="120"></canvas>
+        <div class="chart-empty-label">Sin datos de estaciones</div>
+      </div>
+      <div class="card">
+        <div class="card-title"><i data-lucide="cloud-rain" class="inline-ic"></i> Precipitación — 7 días</div>
+        <canvas id="c-rain-week" height="120"></canvas>
+        <div class="chart-empty-label">Sin datos de estaciones</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══ CULTIVOS ══════════════════════ -->
+  <div class="page" id="page-cultivos">
+    <div class="page-hd">
+      <div class="page-hd-left"><h1>Gestión de Cultivos</h1><p>Monitorea el estado y las necesidades de tus parcelas</p></div>
+      <button class="btn btn-primary" onclick="toast('warn','Función no disponible todavía — el backend de cultivos aún no existe.')">＋ Nuevo Cultivo</button>
+    </div>
+
+    <div class="card">
+      <div style="padding:32px;text-align:center;color:var(--text3)">
+        <i data-lucide="sprout" class="inline-ic" style="width:32px;height:32px;margin-bottom:8px"></i>
+        <div style="font-weight:600;color:var(--text)">No hay cultivos registrados.</div>
+        <div style="font-size:0.8rem;margin-top:4px">Este módulo requiere un backend de gestión de cultivos que todavía no está implementado.</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══ ALERTAS ═══════════════════════ -->
+  <div class="page" id="page-alertas">
+    <div class="page-hd">
+      <div class="page-hd-left"><h1>Alertas y Notificaciones</h1><p>Centro de alertas activas del sistema</p></div>
+      <div style="display:flex;gap:6px;flex-wrap:wrap">
+        <button class="btn btn-ghost btn-sm" onclick="filterAlerts('all')">Todas</button>
+        <button class="btn btn-ghost btn-sm" onclick="filterAlerts('critical')">Críticas</button>
+        <button class="btn btn-ghost btn-sm" onclick="filterAlerts('warning')">Advertencias</button>
+        <button class="btn btn-danger btn-sm" onclick="clearAlerts()">Limpiar</button>
+      </div>
+    </div>
+
+    <div class="card mb18" id="alerts-wrap">
+      <div class="card-title"><i data-lucide="siren" class="inline-ic"></i> Alertas Activas</div>
+      <div id="alerts-list">
+        <div style="padding:20px;text-align:center;font-size:0.78rem;color:var(--text3)">Cargando...</div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-title"><i data-lucide="settings" class="inline-ic"></i> Umbrales de Alerta</div>
+      <div style="padding:12px;text-align:center;font-size:0.8rem;color:var(--text3)">
+        La edición de umbrales desde la interfaz aún no está disponible — el backend de configuración de alertas todavía no existe. Los umbrales actuales se definen en el servidor por sensor (<code>rango_ideal</code>) y se aplican automáticamente en cada lectura recibida.
+      </div>
+    </div>
+  </div>
+
+  <!-- ══ REPORTES ══════════════════════ -->
+  <div class="page" id="page-reportes">
+    <div class="page-hd">
+      <div class="page-hd-left"><h1>Reportes</h1><p>Generación y descarga de informes climáticos</p></div>
+      <button class="btn btn-primary" onclick="toast('warn','Función no disponible todavía — el backend de reportes aún no existe.')">＋ Nuevo Reporte</button>
+    </div>
+
+    <div class="card">
+      <div style="padding:32px;text-align:center;color:var(--text3)">
+        <i data-lucide="clipboard-list" class="inline-ic" style="width:32px;height:32px;margin-bottom:8px"></i>
+        <div style="font-weight:600;color:var(--text)">No hay reportes disponibles.</div>
+        <div style="font-size:0.8rem;margin-top:4px">La generación de reportes requiere un backend que agregue y exporte datos históricos reales; todavía no está implementado.</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══ CONFIGURACIONES ═══════════════ -->
+  <div class="page" id="page-configuraciones">
+    <div class="page-hd">
+      <div class="page-hd-left"><h1>Configuraciones</h1><p>Personaliza tu experiencia en MeteoX</p></div>
+      <button class="btn btn-primary" onclick="toast('warn','Guardar configuración aún no está disponible — falta el backend de configuraciones.')"><i data-lucide="save" class="inline-ic"></i> Guardar</button>
+    </div>
+
+    <div class="g2">
+      <div>
+        <div class="card mb14">
+          <div class="settings-section-title">General</div>
+          <div style="padding:10px 4px;font-size:0.8rem;color:var(--text3)">
+            Unidades, zona horaria e idioma se guardarán aquí en cuanto exista el endpoint <code>/api/configuraciones</code>. Por ahora estos controles son solo de interfaz y no persisten.
+          </div>
+          <div class="settings-row"><span class="sett-icon"><i data-lucide="thermometer" class="inline-ic"></i></span><div class="sett-lbl"><strong>Unidades de temperatura</strong><small>Celsius o Fahrenheit</small></div><div class="sett-ctrl"><select class="sett-select"><option>°C — Celsius</option><option>°F — Fahrenheit</option></select></div></div>
+          <div class="settings-row"><span class="sett-icon"><i data-lucide="wind" class="inline-ic"></i></span><div class="sett-lbl"><strong>Unidades de viento</strong><small>km/h, m/s o nudos</small></div><div class="sett-ctrl"><select class="sett-select"><option>km/h</option><option>m/s</option><option>nudos</option></select></div></div>
+          <div class="settings-row"><span class="sett-icon"><i data-lucide="globe" class="inline-ic"></i></span><div class="sett-lbl"><strong>Idioma</strong><small>Idioma de la interfaz</small></div><div class="sett-ctrl"><select class="sett-select"><option>Español</option><option>English</option></select></div></div>
+        </div>
+
+        <div class="card">
+          <div class="settings-section-title">Apariencia</div>
+          <div class="settings-row" onclick="toggleTheme()">
+            <span class="sett-icon"><i data-lucide="moon" class="inline-ic"></i></span>
+            <div class="sett-lbl"><strong>Modo oscuro</strong><small>Cambiar entre tema claro y oscuro (funciona, solo en este navegador)</small></div>
+            <div class="sett-ctrl"><button class="tog" id="dark-mode-tog" onclick="event.stopPropagation();toggleTheme()"></button></div>
+          </div>
+        </div>
+      </div>
+
+      <div>
+        <div class="card mb14">
+          <div class="settings-section-title">Notificaciones</div>
+          <div style="padding:10px 4px;font-size:0.8rem;color:var(--text3)">
+            Los canales de notificación (email, push, SMS) todavía no están conectados a un servicio real de envío; estos interruptores son de interfaz únicamente.
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="settings-section-title">Cuenta</div>
+          <div class="settings-row"><span class="sett-icon"><i data-lucide="user" class="inline-ic"></i></span><div class="sett-lbl"><strong id="acc-nombre">—</strong><small id="acc-email">—</small></div><span style="font-size:0.72rem;color:var(--text3)" id="acc-rol"></span></div>
+          <div class="settings-row" onclick="toast('warn','Cambio de contraseña aún no está disponible desde aquí.')"><span class="sett-icon"><i data-lucide="key" class="inline-ic"></i></span><div class="sett-lbl"><strong>Cambiar contraseña</strong></div><span style="color:var(--blue);font-size:0.78rem">Cambiar →</span></div>
+          <div class="settings-row" onclick="toast('warn','Integraciones API aún no configuradas — no hay conexión real con AEMET/OpenWeather.')"><span class="sett-icon"><i data-lucide="link" class="inline-ic"></i></span><div class="sett-lbl"><strong>Integraciones API</strong><small>AEMET, OpenWeather — No configurada</small></div><span style="color:var(--blue);font-size:0.78rem">Gestionar →</span></div>
+          <div class="settings-row" onclick="logout()"><span class="sett-icon"><i data-lucide="power" class="inline-ic"></i></span><div class="sett-lbl"><strong>Cerrar sesión</strong></div></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══ CONECTIVIDAD ═════════════════════ -->
+  <div class="page" id="page-conectividad">
+    <div class="page-hd">
+      <div class="page-hd-left">
+        <h1>Conectividad</h1>
+        <p>Estado real de las estaciones, basado en la última lectura recibida del hardware</p>
+      </div>
+      <button class="btn btn-ghost" onclick="MX.conn.init()"><i data-lucide="refresh-cw" class="inline-ic"></i> Actualizar</button>
+    </div>
+
+    <div class="card mb18">
+      <div style="padding:8px 4px 14px;font-size:0.8rem;color:var(--text3)">
+        El ESP32 publica por MQTT (broker público) cada 2 segundos; el servidor MeteoX se suscribe, valida la firma del mensaje y actualiza los datos. Este panel se refresca cada 2 s. El estado "conectada" o "sin conexión" se calcula a partir de <code>ultima_actualizacion</code> de cada estación (sin conexión = más de 15 s sin datos).
+      </div>
+      <div id="conn-stations-list">
+        <div style="padding:14px;text-align:center;font-size:0.78rem;color:var(--text3)">Cargando...</div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-title"><i data-lucide="terminal" class="inline-ic"></i> Endpoint de ingesta (referencia)</div>
+      <div style="font-size:0.78rem;color:var(--text2);font-family:monospace;background:var(--surface2);border:1px solid var(--border);border-radius:var(--radius-sm);padding:10px;overflow-x:auto">
+        POST /api/sensores/actualizar<br>
+        Header: X-API-Key: &lt;DEVICE_API_KEY&gt;<br>
+        Body: {"estacion_id": "...", "temperatura": 0.0, "humedad": 0.0}
+      </div>
+    </div>
+  </div>
+
+  <!-- ══ INTELIGENCIA IA ════════════════ -->
+  <div class="page" id="page-inteligencia">
+    <div class="page-hd">
+      <div class="page-hd-left">
+        <h1>Inteligencia Artificial</h1>
+        <p>Modelos predictivos · Detección de anomalías · Diagnóstico de sensores</p>
+      </div>
+      <div style="display:flex;gap:8px;flex-wrap:wrap">
+        <span class="ai-chip"><span class="ai-pulse"></span> Modelos activos</span>
+        <button class="btn btn-primary" onclick="MX.ai.runFullScan()"><i data-lucide="search" class="inline-ic"></i> Analizar ahora</button>
+      </div>
+    </div>
+
+    <!-- AI model KPIs -->
+    <div class="g4 mb14">
+      <div class="kpi">
+        <div class="kpi-stripe" style="background:linear-gradient(90deg,#1565c0,#42a5f5)"></div>
+        <div class="kpi-label">Anomalías detectadas</div>
+        <div class="kpi-val" id="ai-anomaly-count">—</div>
+        <div class="kpi-sub">Sobre historial disponible</div>
+        <div class="kpi-icon"><i data-lucide="triangle-alert" class="inline-ic"></i></div>
+      </div>
+      <div class="kpi">
+        <div class="kpi-stripe" style="background:linear-gradient(90deg,#ef4444,#f97316)"></div>
+        <div class="kpi-label">Sensores con falla</div>
+        <div class="kpi-val" id="ai-fault-count">—</div>
+        <div class="kpi-sub">Sin lectura reciente</div>
+        <div class="kpi-icon"><i data-lucide="wrench" class="inline-ic"></i></div>
+      </div>
+      <div class="kpi">
+        <div class="kpi-stripe" style="background:linear-gradient(90deg,#4caf50,#26a69a)"></div>
+        <div class="kpi-label">Precisión del modelo</div>
+        <div class="kpi-val" id="ai-precision" style="font-size:1rem">No disponible</div>
+        <div class="kpi-sub">Requiere conjunto de validación</div>
+        <div class="kpi-icon"><i data-lucide="target" class="inline-ic"></i></div>
+      </div>
+      <div class="kpi">
+        <div class="kpi-stripe" style="background:linear-gradient(90deg,#9c27b0,#e91e63)"></div>
+        <div class="kpi-label">Último análisis</div>
+        <div class="kpi-val" id="ai-last-scan" style="font-size:1rem">—</div>
+        <div class="kpi-sub">Bajo demanda</div>
+        <div class="kpi-icon"><i data-lucide="clock" class="inline-ic"></i></div>
+      </div>
+    </div>
+
+    <div class="g2 mb14">
+      <!-- Anomaly Detection -->
+      <div class="card">
+        <div class="card-title">
+          <i data-lucide="search" class="inline-ic"></i> Detección de Anomalías
+        </div>
+        <div style="font-size:0.72rem;color:var(--text3);margin-bottom:10px">Método: media ± 2.5 desviaciones estándar sobre el historial real de cada sensor (mínimo 8 lecturas)</div>
+        <div id="anomaly-list">
+          <div style="padding:14px;text-align:center;font-size:0.78rem;color:var(--text3)">Presiona "Ejecutar análisis" para calcular sobre los datos reales.</div>
+        </div>
+        <button class="btn btn-ghost btn-sm" style="margin-top:8px;width:100%" onclick="MX.ai.runAnomalyScan()"><i data-lucide="refresh-cw" class="inline-ic"></i> Ejecutar análisis</button>
+      </div>
+
+      <!-- Sensor Diagnostics -->
+      <div class="card">
+        <div class="card-title">
+          <i data-lucide="wrench" class="inline-ic"></i> Diagnóstico de Sensores
+        </div>
+        <div style="font-size:0.72rem;color:var(--text3);margin-bottom:10px">Basado en tiempo desde la última lectura real de cada sensor</div>
+        <div id="sensor-diag-list">
+          <div style="padding:14px;text-align:center;font-size:0.78rem;color:var(--text3)">Cargando...</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Model Performance -->
+    <div class="card mb14">
+      <div class="card-title"><i data-lucide="trending-up" class="inline-ic"></i> Rendimiento del Modelo IA</div>
+      <div style="padding:12px 4px;font-size:0.8rem;color:var(--text3)">
+        Datos insuficientes para calcular métricas de precisión/recall — no existe todavía un conjunto de validación etiquetado. Estas métricas se mostrarán en cuanto haya suficiente historial de anomalías confirmadas manualmente.
+      </div>
+    </div>
+
+    <!-- Log -->
+    <div class="card">
+      <div class="card-title"><i data-lucide="monitor" class="inline-ic"></i> Log del Análisis <button class="btn btn-ghost btn-sm" onclick="MX.ai.clearLog()">Limpiar</button></div>
+      <div class="conn-log" id="ai-log">
+        <span style="color:var(--text3)">Sin análisis ejecutados en esta sesión.</span>
+      </div>
+    </div>
+  </div>
+
+  </main>
+</div>
+</div>
+
+<div id="toast-root"></div>
+
+<script src="https://cdn.socket.io/4.7.5/socket.io.min.js"></script>
+<script>
+// ── NAV ────────────────────────────────
+function nav(page, el) {
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+  const pg = document.getElementById('page-' + page);
+  if (pg) pg.classList.add('active');
+  if (el) el.classList.add('active');
+  else {
+    const found = document.querySelector('[data-page="' + page + '"]');
+    if (found) found.classList.add('active');
+  }
+  closeSidebar();
+  if (page === 'prevision') setTimeout(drawWeekCharts, 80);
+  if (page === 'inteligencia') setTimeout(() => MX.ai.init(), 80);
+  if (page === 'conectividad') setTimeout(() => { MX.conn.init && MX.conn.init(); }, 80);
+  if (page === 'usuarios') setTimeout(() => MX.renderUsuarios(), 80);
+}
+
+// ── SIDEBAR ────────────────────────────
+function toggleUserMenu(e) {
+  if (e) e.stopPropagation();
+  const menu = document.getElementById('user-menu');
+  if (!menu) return;
+  menu.style.display = (menu.style.display === 'block') ? 'none' : 'block';
+}
+document.addEventListener('click', (e) => {
+  const menu = document.getElementById('user-menu');
+  if (menu && menu.style.display === 'block' && !menu.contains(e.target)) menu.style.display = 'none';
+});
+function logout() {
+  toast('inf', 'Cerrando sesión...');
+  setTimeout(() => {
+    window.location.href = '/';
+  }, 600);
+}
+
+function toggleSidebar() {
+  document.getElementById('sidebar').classList.toggle('open');
+  document.getElementById('overlay').classList.toggle('open');
+}
+function closeSidebar() {
+  document.getElementById('sidebar').classList.remove('open');
+  document.getElementById('overlay').classList.remove('open');
+}
+
+// ── DARK MODE ──────────────────────────
+let isDark = false;
+function toggleTheme() {
+  isDark = !isDark;
+  document.documentElement.setAttribute('data-theme', isDark ? 'dark' : 'light');
+  const themeIconEl = document.getElementById('theme-icon');
+  themeIconEl.innerHTML = '<i data-lucide="' + (isDark ? 'sun' : 'moon') + '"></i>';
+  if (window.lucide) lucide.createIcons({ nodes: [themeIconEl] });
+  document.getElementById('theme-label').textContent = isDark ? 'Modo claro' : 'Modo oscuro';
+  const tog = document.getElementById('dark-mode-tog');
+  if (tog) tog.classList.toggle('on', isDark);
+  // Redraw charts after theme change
+  setTimeout(drawDashCharts, 50);
+  toast('inf', isDark ? 'Modo oscuro activado' : 'Modo claro activado');
+}
+
+// ── CLOCK ──────────────────────────────
+function tick() {
+  const now = new Date();
+  const d = now.toLocaleDateString('es-MX', {weekday:'short',day:'numeric',month:'short'});
+  const t = now.toLocaleTimeString('es-MX', {hour:'2-digit',minute:'2-digit',second:'2-digit'});
+  const el = document.getElementById('clock');
+  if (el) el.textContent = d + ' · ' + t;
+}
+setInterval(tick, 1000); tick();
+
+// ── TOAST ──────────────────────────────
+function toast(type, msg) {
+  const map = { ok:'check', err:'x', warn:'triangle-alert', inf:'info' };
+  const root = document.getElementById('toast-root');
+  const t = document.createElement('div');
+  t.className = 'toast ' + type;
+  t.innerHTML = '<span><i data-lucide="' + (map[type]||'info') + '"></i></span><span>' + msg + '</span>';
+  if (window.lucide) lucide.createIcons({ nodes: [t] });
+  root.appendChild(t);
+  setTimeout(() => {
+    t.style.transition = 'opacity 0.25s,transform 0.25s';
+    t.style.opacity = '0'; t.style.transform = 'translateX(20px)';
+    setTimeout(() => t.remove(), 260);
+  }, 3200);
+}
+
+// ── NOTIF ──────────────────────────────
+function toggleNotif() {
+  document.getElementById('notif-panel').classList.toggle('open');
+}
+function clearNotifs() {
+  document.getElementById('np-list').innerHTML = '<div style="padding:18px;text-align:center;font-size:0.78rem;color:var(--text3)">Sin notificaciones nuevas</div>';
+  document.getElementById('notif-dot').style.display = 'none';
+  document.getElementById('notif-panel').classList.remove('open');
+  toast('ok', 'Notificaciones limpiadas');
+}
+document.addEventListener('click', e => {
+  const p = document.getElementById('notif-panel');
+  const b = document.getElementById('notif-btn');
+  if (p.classList.contains('open') && !p.contains(e.target) && !b.contains(e.target))
+    p.classList.remove('open');
+});
+
+// ── ALERTS ─────────────────────────────
+function filterAlerts(type) {
+  document.querySelectorAll('#alerts-list .alert-item').forEach(el => {
+    el.style.display = (type === 'all' || el.dataset.type === type) ? 'flex' : 'none';
+  });
+  toast('inf', 'Mostrando: ' + (type === 'all' ? 'todas las alertas' : type === 'critical' ? 'críticas' : 'advertencias'));
+}
+function clearAlerts() {
+  document.getElementById('alerts-list').innerHTML = '<div style="padding:20px;text-align:center;font-size:0.78rem;color:var(--text3)">Sin alertas activas</div>';
+  document.getElementById('badge-count').textContent = '0';
+  toast('ok', 'Alertas limpiadas');
+}
+
+// ── SEARCH ─────────────────────────────
+let searchTimer;
+function onSearch(v) {
+  clearTimeout(searchTimer);
+  if (v.length > 1) searchTimer = setTimeout(() => toast('inf', 'Buscando: "' + v + '"'), 600);
+}
+
+// ── CHARTS ─────────────────────────────
+function getColors() {
+  const s = getComputedStyle(document.documentElement);
+  return {
+    text3: s.getPropertyValue('--text3').trim() || '#8a94a6',
+    border: s.getPropertyValue('--border').trim() || '#e4e7ed',
+    surface3: s.getPropertyValue('--surface3').trim() || '#eef0f4',
+  };
+}
+
+function drawLineEmpty(id, labels, colors) {
+  const c = document.getElementById(id);
+  if (!c) return;
+  const W = c.parentElement.clientWidth || 260;
+  const H = parseInt(c.getAttribute('height')) || 88;
+  c.width = W; c.height = H;
+  const ctx = c.getContext('2d');
+  ctx.clearRect(0, 0, W, H);
+  const cl = getColors();
+  // Grid lines
+  ctx.strokeStyle = cl.border; ctx.lineWidth = 1;
+  for (let i = 0; i <= 3; i++) {
+    const y = Math.round((H - 18) * (i / 3)) + 2;
+    ctx.beginPath(); ctx.moveTo(0, y); ctx.lineTo(W, y); ctx.stroke();
+  }
+  // X labels
+  if (labels) {
+    ctx.fillStyle = cl.text3;
+    ctx.font = '9px Inter, sans-serif';
+    ctx.textAlign = 'center';
+    labels.forEach((l, i) => {
+      const x = (i / (labels.length - 1)) * (W - 20) + 10;
+      ctx.fillText(l, x, H - 3);
+    });
+  }
+  // No-data message
+  ctx.fillStyle = cl.text3;
+  ctx.font = '11px Inter, sans-serif';
+  ctx.textAlign = 'center';
+  ctx.fillText('Sin datos', W / 2, H / 2 - 6);
+}
+
+function drawBarEmpty(id, labels) {
+  const c = document.getElementById(id);
+  if (!c) return;
+  const W = c.parentElement.clientWidth || 260;
+  const H = parseInt(c.getAttribute('height')) || 88;
+  c.width = W; c.height = H;
+  const ctx = c.getContext('2d');
+  ctx.clearRect(0, 0, W, H);
+  const cl = getColors();
+  const n = labels.length;
+  const gap = 4; const barW = Math.max(4, W / n - gap * 2);
+  labels.forEach((lbl, i) => {
+    const x = i * (W / n) + gap;
+    ctx.fillStyle = cl.surface3;
+    ctx.beginPath();
+    if (ctx.roundRect) ctx.roundRect(x, 10, barW, H - 22, 3);
+    else ctx.rect(x, 10, barW, H - 22);
+    ctx.fill();
+    ctx.fillStyle = cl.text3;
+    ctx.font = '8px Inter, sans-serif';
+    ctx.textAlign = 'center';
+    ctx.fillText(lbl, x + barW / 2, H - 3);
+  });
+  ctx.fillStyle = cl.text3;
+  ctx.font = '11px Inter, sans-serif';
+  ctx.textAlign = 'center';
+  ctx.fillText('Sin datos', W / 2, H / 2 - 4);
+}
+
+function drawRoseEmpty(id) {
+  const c = document.getElementById(id);
+  if (!c) return;
+  const W = c.parentElement.clientWidth || 260;
+  const H = parseInt(c.getAttribute('height')) || 88;
+  c.width = W; c.height = H;
+  const ctx = c.getContext('2d');
+  ctx.clearRect(0, 0, W, H);
+  const cl = getColors();
+  const cx = W / 2, cy = H / 2, r = Math.min(W, H) / 2 - 12;
+  [0.33, 0.66, 1].forEach(s => {
+    ctx.beginPath(); ctx.arc(cx, cy, r * s, 0, Math.PI * 2);
+    ctx.strokeStyle = cl.border; ctx.lineWidth = 1; ctx.stroke();
+  });
+  ['N','E','S','O'].forEach((d, i) => {
+    const a = (i * Math.PI / 2) - Math.PI / 2;
+    ctx.beginPath();
+    ctx.moveTo(cx, cy);
+    ctx.lineTo(cx + Math.cos(a) * r, cy + Math.sin(a) * r);
+    ctx.strokeStyle = cl.border; ctx.lineWidth = 1; ctx.stroke();
+    ctx.fillStyle = cl.text3;
+    ctx.font = '9px Inter, sans-serif'; ctx.textAlign = 'center';
+    ctx.fillText(d, cx + Math.cos(a) * (r + 9), cy + Math.sin(a) * (r + 9) + 3);
+  });
+  ctx.fillStyle = cl.text3;
+  ctx.font = '11px Inter, sans-serif'; ctx.textAlign = 'center';
+  ctx.fillText('Sin datos', cx, cy + 4);
+}
+
+function drawDashCharts() {
+  drawLineEmpty('c-soil', ['10h','11h','12h','13h','14h','15h','16h','17h']);
+  drawBarEmpty('c-precip', ['L','M','X','J','V','S','D']);
+  drawRoseEmpty('c-wind');
+}
+function drawWeekCharts() {
+  const days = ['Lun','Mar','Mié','Jue','Vie','Sáb','Dom'];
+  drawLineEmpty('c-temp-week', days);
+  drawBarEmpty('c-rain-week', days);
+}
+
+
+// ═══════════════════════════════════════
+// MX — MeteoX Runtime Engine (datos reales vía API)
+// ═══════════════════════════════════════
+function fmtRel(iso) {
+  if (!iso) return 'Sin datos';
+  const d = new Date(iso.replace(' ', 'T'));
+  if (isNaN(d)) return 'Sin datos';
+  const diffMs = Date.now() - d.getTime();
+  const min = Math.floor(diffMs / 60000);
+  if (min < 1) return 'Hace instantes';
+  if (min < 60) return `Hace ${min} min`;
+  const h = Math.floor(min / 60);
+  if (h < 24) return `Hace ${h} h`;
+  return `Hace ${Math.floor(h/24)} d`;
+}
+function isStationOnline(estacion) {
+  if (!estacion || !estacion.ultima_actualizacion) return false;
+  const d = new Date(estacion.ultima_actualizacion.replace(' ', 'T'));
+  if (isNaN(d)) return false;
+  return (Date.now() - d.getTime()) < 15 * 1000; // 15 s sin datos = sin conexión (el ESP32 publica cada 2 s)
+}
+
+const MX = {
+  data: { me: null, estaciones: [], sensores: [], alertas: [] },
+
+  async fetchAll() {
+    try {
+      const [me, estaciones, sensores, alertas] = await Promise.all([
+        fetch('/api/me').then(r => r.ok ? r.json() : null),
+        fetch('/api/estaciones').then(r => r.ok ? r.json() : []),
+        fetch('/api/sensores').then(r => r.ok ? r.json() : []),
+        fetch('/api/alertas').then(r => r.ok ? r.json() : []),
+      ]);
+      this.data.me = me;
+      this.data.estaciones = estaciones || [];
+      this.data.sensores = sensores || [];
+      this.data.alertas = alertas || [];
+    } catch (e) {
+      toast('err', 'No se pudo conectar con el servidor.');
+    }
+    this.renderAccount();
+    this.renderDashboard();
+    this.renderEstaciones();
+    this.renderAlertsList('alerts-list', this.data.alertas);
+    this.renderAlertsList('dash-alerts-list', this.data.alertas.slice(0, 3));
+    this.renderNotifPanel();
+    this.renderMapPins();
+  },
+
+  renderAccount() {
+    const me = this.data.me;
+    if (!me) return;
+    const initials = (me.nombre || '?').split(' ').map(s => s[0]).slice(0,2).join('').toUpperCase();
+    ['sidebar-avatar','header-avatar'].forEach(id => { const e = document.getElementById(id); if (e) e.textContent = initials; });
+    const sn = document.getElementById('sidebar-nombre'); if (sn) sn.textContent = me.nombre || '—';
+    const sr = document.getElementById('sidebar-rol'); if (sr) sr.textContent = me.rol === 'admin' ? 'Administrador' : 'Agricultor';
+    const hn = document.getElementById('header-nombre'); if (hn) hn.textContent = (me.nombre || '').split(' ')[0] || '—';
+    const mn = document.getElementById('menu-nombre'); if (mn) mn.textContent = me.nombre || '—';
+    const me2 = document.getElementById('menu-email'); if (me2) me2.textContent = me.email || '—';
+    const an = document.getElementById('acc-nombre'); if (an) an.textContent = me.nombre || '—';
+    const ae = document.getElementById('acc-email'); if (ae) ae.textContent = me.email || '—';
+    const ar = document.getElementById('acc-rol'); if (ar) ar.textContent = me.rol === 'admin' ? 'Administrador' : 'Agricultor';
+  },
+
+  sensorByType(tipo) {
+    // primer sensor de ese tipo con lectura, entre las estaciones visibles
+    return this.data.sensores.find(s => s.tipo === tipo && s.valor_actual !== undefined && s.valor_actual !== null);
+  },
+
+  renderDashboard() {
+    const temp = this.sensorByType('temperatura');
+    const hum = this.sensorByType('humedad');
+    const setKpi = (valId, subId, sensor, unit) => {
+      const v = document.getElementById(valId), s = document.getElementById(subId);
+      if (sensor) {
+        if (v) v.innerHTML = sensor.valor_actual + ' <sup>' + unit + '</sup>';
+        if (s) s.textContent = fmtRel(sensor.ultima_lectura);
+      } else {
+        if (v) v.innerHTML = '— <sup>' + unit + '</sup>';
+        if (s) s.textContent = 'Sin conexión';
+      }
+    };
+    setKpi('kpi-temp','kpi-temp-sub', temp, '°C');
+    setKpi('kpi-hum','kpi-hum-sub', hum, '%');
+    setKpi('kpi-precip','kpi-precip-sub', this.sensorByType('precipitacion'), 'mm');
+    setKpi('kpi-wind','kpi-wind-sub', this.sensorByType('viento'), 'km/h');
+
+    const whTemp = document.getElementById('wh-temp'), whDesc = document.getElementById('wh-desc'),
+          whHum = document.getElementById('wh-hum'), whWind = document.getElementById('wh-wind'),
+          whNoData = document.getElementById('wh-nodata');
+    if (temp) {
+      if (whTemp) whTemp.textContent = temp.valor_actual + ' °C';
+      if (whDesc) whDesc.textContent = 'Última lectura: ' + fmtRel(temp.ultima_lectura);
+      if (whNoData) whNoData.style.display = 'none';
+    } else {
+      if (whNoData) whNoData.style.display = 'flex';
+    }
+    if (whHum) whHum.textContent = hum ? hum.valor_actual + ' %' : '—';
+    const wind = this.sensorByType('viento');
+    if (whWind) whWind.textContent = wind ? wind.valor_actual + ' km/h' : '— km/h';
+  },
+
+  renderMapPins() {
+    const wrap = document.getElementById('map-pins');
+    if (!wrap) return;
+    if (!this.data.estaciones.length) {
+      wrap.innerHTML = '';
+      return;
+    }
+    wrap.innerHTML = this.data.estaciones.map((e, i) => {
+      const online = isStationOnline(e);
+      const left = 20 + (i * 25) % 60, top = 20 + (i * 17) % 50;
+      const gpsTxt = e.gps ? (e.gps.fix ? 'GPS en vivo' : 'GPS buscando señal') : 'Sin módulo GPS';
+      return `<div class="map-pin" style="left:${left}%;top:${top}%">
+        <div class="pin-popup"><strong>${e.nombre}</strong><span>${online ? 'Conectada' : 'Sin datos · desconectada'} · ${gpsTxt}</span></div>
+        <div class="pin-dot ${online ? 'online' : 'warning'}"></div>
+        <div class="pin-label">${e.nombre}</div>
+      </div>`;
+    }).join('');
+
+    // El mapa satelital sigue a la primera estación con fix GPS en vivo;
+    // si ninguna tiene fix todavía, usa la última ubicación conocida
+    // (la que ya trae guardada por defecto la estación).
+    const frame = document.getElementById('stations-map-frame');
+    if (frame) {
+      const conFix = this.data.estaciones.find(e => e.gps && e.gps.fix);
+      const referencia = conFix || this.data.estaciones.find(e => e.latitud != null && e.longitud != null);
+      if (referencia) {
+        const lat = conFix ? conFix.gps.lat : referencia.latitud;
+        const lon = conFix ? conFix.gps.lon : referencia.longitud;
+        frame.src = `https://maps.google.com/maps?q=${lat},${lon}&t=k&z=16&output=embed`;
+      }
+    }
+  },
+
+  renderEstaciones() {
+    const cardsWrap = document.getElementById('estaciones-cards');
+    const est = this.data.estaciones;
+    if (!cardsWrap) return;
+    if (!est.length) {
+      cardsWrap.innerHTML = `<div class="card" style="grid-column:1/-1"><div style="padding:28px;text-align:center;color:var(--text3)">
+        No hay estaciones registradas.<br><span style="font-size:0.8rem">Agrega tu estación para comenzar.</span>
+      </div></div>`;
+    } else {
+      let online = 0, warn = 0, off = 0;
+      cardsWrap.innerHTML = est.map(e => {
+        const sensores = this.data.sensores.filter(s => s.estacion_id === e.id);
+        const hasFault = sensores.some(s => s.estado && s.estado !== 'activo');
+        const isOn = isStationOnline(e);
+        if (!isOn) off++; else if (hasFault) warn++; else online++;
+        const cls = !isOn ? '' : (hasFault ? 'warn' : '');
+        const pill = !isOn ? '<span class="status-pill pill-off">Sin conexión</span>' : (hasFault ? '<span class="status-pill pill-warn"><i data-lucide="triangle-alert" class="inline-ic"></i> Advertencia</span>' : '<span class="status-pill pill-ok">● Online</span>');
+        const sensorBoxes = sensores.length ? sensores.map(s => `
+          <div class="sensor-box ${s.estado && s.estado !== 'activo' ? 'err' : ''}">
+            <div class="sensor-lbl">${s.nombre}</div>
+            <div class="sensor-val">${s.valor_actual !== undefined && s.valor_actual !== null ? s.valor_actual + ' ' + (s.unidad||'') : 'Sin datos'}</div>
+          </div>`).join('') : '<div style="grid-column:1/-1;text-align:center;color:var(--text3);font-size:0.75rem;padding:8px">Sin sensores registrados</div>';
+        const gps = e.gps;
+        let gpsLine;
+        if (!gps) {
+          gpsLine = 'Sin módulo GPS';
+        } else if (gps.fix) {
+          gpsLine = `GPS: ${gps.lat.toFixed(5)}, ${gps.lon.toFixed(5)} · ${gps.satelites} sat${gps.alt != null ? ' · ' + Math.round(gps.alt) + ' m' : ''}`;
+        } else {
+          gpsLine = `GPS: buscando señal… (${gps.satelites || 0} sat)`;
+        }
+        return `<div class="station-card ${cls}">
+          <div class="st-header">
+            <div><div class="st-name">${e.nombre}</div><div class="st-loc"><i data-lucide="map-pin" class="inline-ic"></i> ${e.ubicacion || '—'}</div></div>
+            ${pill}
+          </div>
+          <div class="sensor-grid">${sensorBoxes}</div>
+          <div class="st-foot">
+            <span><i data-lucide="clock" class="inline-ic"></i> ${fmtRel(e.ultima_actualizacion)}</span>
+            <span><i data-lucide="satellite" class="inline-ic"></i> ${gpsLine}</span>
+          </div>
+        </div>`;
+      }).join('');
+      const set = (id, v) => { const el = document.getElementById(id); if (el) el.textContent = v; };
+      set('kpi-est-online', online); set('kpi-est-warn', warn); set('kpi-est-off', off); set('kpi-est-total', est.length);
+    }
+
+    const tbody = document.getElementById('sensores-tbody');
+    if (tbody) {
+      if (!this.data.sensores.length) {
+        tbody.innerHTML = '<tr><td colspan="5" style="text-align:center;color:var(--text3)">Sin sensores registrados</td></tr>';
+      } else {
+        tbody.innerHTML = this.data.sensores.map(s => {
+          const est = this.data.estaciones.find(e => e.id === s.estacion_id);
+          const ok = s.estado === 'activo';
+          return `<tr><td>${s.nombre}</td><td>${est ? est.nombre : '—'}</td><td>${s.tipo}</td>
+            <td>${s.valor_actual !== undefined && s.valor_actual !== null ? s.valor_actual + (s.unidad||'') : '—'}</td>
+            <td><span class="status-pill ${ok ? 'pill-ok' : 'pill-off'}" style="font-size:0.62rem;padding:2px 8px">${ok ? 'OK' : (s.estado||'—')}</span></td></tr>`;
+        }).join('');
+      }
+    }
+    if (window.lucide) lucide.createIcons();
+  },
+
+  renderAlertsList(elId, alertas) {
+    const el = document.getElementById(elId);
+    if (!el) return;
+    if (!alertas.length) {
+      el.innerHTML = '<div style="padding:20px;text-align:center;font-size:0.78rem;color:var(--text3)">Sin alertas activas.</div>';
+      return;
+    }
+    el.innerHTML = alertas.map(a => {
+      const est = this.data.estaciones.find(e => e.id === a.estacion_id);
+      const crit = a.prioridad === 'alta' || a.tipo === 'critica';
+      return `<div class="alert-item ${crit ? 'critical' : 'warning'}" data-type="${crit ? 'critical' : 'warning'}">
+        <span class="alert-icon"><i data-lucide="triangle-alert" class="inline-ic"></i></span>
+        <div class="alert-body"><div class="alert-title">${a.titulo || a.descripcion}</div>
+          <div class="alert-meta">${est ? est.nombre : 'Sistema'} · ${fmtRel(a.fecha)}</div></div>
+        <span class="badge ${crit ? 'badge-crit' : 'badge-warn'}">${crit ? 'Crítico' : 'Advertencia'}</span>
+      </div>`;
+    }).join('');
+    if (window.lucide) lucide.createIcons();
+  },
+
+  renderNotifPanel() {
+    const el = document.getElementById('np-list');
+    const dot = document.getElementById('notif-dot');
+    const badge = document.getElementById('badge-count');
+    if (!el) return;
+    const activas = this.data.alertas.filter(a => a.estado === 'activa');
+    if (!activas.length) {
+      el.innerHTML = '<div style="padding:18px;text-align:center;font-size:0.78rem;color:var(--text3)">Sin notificaciones nuevas</div>';
+      if (dot) dot.style.display = 'none';
+      if (badge) badge.style.display = 'none';
+    } else {
+      el.innerHTML = activas.map(a => `<div class="np-item"><span class="np-icon"><i data-lucide="bell" class="inline-ic"></i></span><div><div class="np-text">${a.titulo || a.descripcion}</div><div class="np-time">${fmtRel(a.fecha)}</div></div></div>`).join('');
+      if (dot) dot.style.display = 'block';
+      if (badge) { badge.style.display = 'flex'; badge.textContent = activas.length; }
+    }
+    if (window.lucide) lucide.createIcons();
+  },
+
+  // ── CONECTIVIDAD (real, basada en heartbeat) ─────
+  conn: {
+    init() {
+      const wrap = document.getElementById('conn-stations-list');
+      if (!wrap) return;
+      const est = MX.data.estaciones;
+      if (!est.length) {
+        wrap.innerHTML = '<div style="padding:14px;text-align:center;color:var(--text3)">No hay estaciones registradas.</div>';
+        return;
+      }
+      wrap.innerHTML = est.map(e => {
+        const online = isStationOnline(e);
+        return `<div style="display:flex;align-items:center;gap:12px;padding:12px;border-bottom:1px solid var(--border)">
+          <div class="conn-dot ${online ? 'connected' : 'disconnected'}"></div>
+          <div style="flex:1">
+            <div style="font-weight:600;font-size:0.85rem;color:var(--text)">${e.nombre}</div>
+            <div style="font-size:0.75rem;color:var(--text3)">Estado: ${online ? 'Conectada' : 'Sin conexión'} · Última lectura: ${fmtRel(e.ultima_actualizacion)}</div>
+          </div>
+        </div>`;
+      }).join('');
+    }
+  },
+
+  // ── IA (cálculo real sobre historial) ─────
+  ai: {
+    aiLog(msg, cls='log-info') {
+      const el = document.getElementById('ai-log');
+      if (!el) return;
+      const now = new Date().toLocaleTimeString('es-MX',{hour:'2-digit',minute:'2-digit',second:'2-digit'});
+      el.innerHTML += `<br><span class="log-ts">[${now}]</span><span class="${cls}">${msg}</span>`;
+      el.scrollTop = el.scrollHeight;
+    },
+    init() {
+      this.renderDiagnostics();
+    },
+    renderDiagnostics() {
+      const wrap = document.getElementById('sensor-diag-list');
+      if (!wrap) return;
+      const sensores = MX.data.sensores;
+      if (!sensores.length) {
+        wrap.innerHTML = '<div style="padding:14px;text-align:center;font-size:0.78rem;color:var(--text3)">Sin sensores registrados.</div>';
+        return;
+      }
+      let faults = 0;
+      wrap.innerHTML = sensores.map(s => {
+        let status = 'Estado no determinado', cls = '', color = 'var(--text3)';
+        if (!s.ultima_lectura) { status = 'Sin lecturas históricas'; }
+        else {
+          const minAgo = Math.floor((Date.now() - new Date(s.ultima_lectura.replace(' ','T')).getTime())/60000);
+          if (minAgo > 30) { status = `Sin respuesta desde hace ${fmtRel(s.ultima_lectura)}`; cls='fault'; color='var(--red)'; faults++; }
+          else { status = 'Última lectura ' + fmtRel(s.ultima_lectura); cls='ok'; color='var(--green)'; }
+        }
+        return `<div class="sensor-diag ${cls}">
+          <div class="diag-body"><div class="diag-name">${s.nombre}</div><div class="diag-desc">${status}</div></div>
+        </div>`;
+      }).join('');
+      const fc = document.getElementById('ai-fault-count'); if (fc) fc.textContent = faults;
+    },
+    runAnomalyScan() {
+      const listEl = document.getElementById('anomaly-list');
+      const sensores = MX.data.sensores.filter(s => Array.isArray(s.historial) && s.historial.length >= 8);
+      if (!sensores.length) {
+        listEl.innerHTML = '<div style="padding:14px;text-align:center;font-size:0.78rem;color:var(--text3)">Datos insuficientes para realizar el análisis — se necesitan al menos 8 lecturas históricas por sensor.</div>';
+        this.aiLog('Análisis cancelado: datos insuficientes', 'log-warn');
+        document.getElementById('ai-anomaly-count').textContent = '0';
+        return;
+      }
+      this.aiLog('Iniciando análisis sobre ' + sensores.length + ' sensor(es) con historial suficiente...');
+      let found = [];
+      sensores.forEach(s => {
+        const vals = s.historial.map(h => h.valor);
+        const mean = vals.reduce((a,b)=>a+b,0) / vals.length;
+        const variance = vals.reduce((a,b)=>a+(b-mean)**2,0) / vals.length;
+        const std = Math.sqrt(variance);
+        if (std === 0) return;
+        const last = vals[vals.length-1];
+        const z = Math.abs((last - mean) / std);
+        if (z > 2.5) {
+          found.push({sensor: s, z, last, mean, std});
+          this.aiLog(`Z-Score ${s.nombre}: ${z.toFixed(2)}σ — anomalía`, 'log-warn');
+        }
+      });
+      document.getElementById('ai-anomaly-count').textContent = found.length;
+      const now = new Date().toLocaleTimeString('es-MX',{hour:'2-digit',minute:'2-digit',second:'2-digit'});
+      document.getElementById('ai-last-scan').textContent = now;
+      if (!found.length) {
+        listEl.innerHTML = '<div style="padding:14px;text-align:center;font-size:0.78rem;color:var(--text3)">No se detectaron anomalías en el historial disponible.</div>';
+        this.aiLog('Escaneo completado: sin anomalías', 'log-ok');
+        toast('ok','Análisis completado: sin anomalías detectadas');
+      } else {
+        listEl.innerHTML = found.map(f => `<div class="anomaly-item ${f.z > 4 ? 'high' : 'medium'}">
+          <span class="anomaly-icon"><i data-lucide="triangle-alert" class="inline-ic"></i></span>
+          <div class="anomaly-body">
+            <div class="anomaly-title">${f.sensor.nombre} — valor atípico</div>
+            <div class="anomaly-detail">Valor: ${f.last} · Media histórica: ${f.mean.toFixed(1)} · Z-Score: ${f.z.toFixed(2)}σ</div>
+          </div>
+          <div class="anomaly-score ${f.z > 4 ? 'score-high' : 'score-medium'}">${f.z.toFixed(1)}σ</div>
+        </div>`).join('');
+        this.aiLog(`Escaneo completado: ${found.length} anomalía(s) detectadas`, 'log-ok');
+        toast('warn', `Análisis completado: ${found.length} anomalía(s) detectadas`);
+      }
+      if (window.lucide) lucide.createIcons();
+    },
+    clearLog() {
+      const el = document.getElementById('ai-log');
+      if (el) el.innerHTML = '<span style="color:var(--text3)">Log limpiado.</span>';
+    }
+  },
+
+  // ── USUARIOS (heartbeat real de estación por agricultor) ─────
+  ETIQUETA_ESTADO: {
+    en_linea:     { texto: '🟢 En línea',     color: '#4caf50' },
+    advertencia:  { texto: '🟡 Advertencia',  color: '#f59e0b' },
+    desconectada: { texto: '🔴 Desconectada', color: '#ef4444' },
+  },
+  ETIQUETA_SENSOR: {
+    funcionando:   { texto: '🟢 Funcionando',   color: '#4caf50' },
+    sin_respuesta: { texto: '🔴 Sin respuesta', color: '#ef4444' },
+    error:         { texto: '🟡 Error',         color: '#f59e0b' },
+  },
+  CATALOGO_SENSORES: [
+    { tipo: 'temperatura',    nombre: 'DHT11 (Temperatura)' },
+    { tipo: 'humedad',        nombre: 'DHT11 (Humedad)' },
+    { tipo: 'humedad_suelo',  nombre: 'Sensor de suelo' },
+    { tipo: 'precipitacion',  nombre: 'Sensor de precipitación' },
+    { tipo: 'calidad_aire',   nombre: 'Sensor de calidad de aire' },
+    { tipo: 'humo',           nombre: 'Sensor de humo' },
+  ],
+
+  async renderUsuarios() {
+    const tbody = document.getElementById('usuarios-tbody');
+    if (!tbody) return;
+    let filas;
+    try {
+      filas = await fetch('/api/admin/usuarios').then(r => r.ok ? r.json() : []);
+    } catch (e) {
+      tbody.innerHTML = '<tr><td colspan="5" style="text-align:center;color:var(--red)">No se pudo conectar con el servidor.</td></tr>';
+      return;
+    }
+    this._usuariosCache = filas;
+    if (!filas.length) {
+      tbody.innerHTML = '<tr><td colspan="5" style="text-align:center;color:var(--text3)">No hay agricultores registrados.</td></tr>';
+      return;
+    }
+    tbody.innerHTML = filas.map(f => {
+      const et = this.ETIQUETA_ESTADO[f.estado_conexion] || this.ETIQUETA_ESTADO.desconectada;
+      return `<tr style="cursor:pointer" onclick="MX.abrirDetalleUsuario('${f.usuario_id}')">
+        <td>${f.agricultor}</td>
+        <td>${f.estacion_nombre}</td>
+        <td>${et.texto}</td>
+        <td>${fmtRel(f.ultima_actualizacion)}</td>
+        <td>${f.sensores_ok}/${f.sensores_total}</td>
+      </tr>`;
+    }).join('');
+  },
+
+  async abrirDetalleUsuario(usuarioId) {
+    const fila = (this._usuariosCache || []).find(f => f.usuario_id === usuarioId);
+    const panel = document.getElementById('usuario-detalle');
+    if (!fila || !panel) return;
+    panel.style.display = 'block';
+    panel.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+
+    document.getElementById('ud-nombre').textContent = fila.agricultor;
+    document.getElementById('ud-estacion').textContent = fila.estacion_nombre;
+    document.getElementById('ud-estacion-id').textContent = fila.estacion_id || 'Sin estación asignada';
+
+    const et = this.ETIQUETA_ESTADO[fila.estado_conexion] || this.ETIQUETA_ESTADO.desconectada;
+    document.getElementById('ud-estado').textContent = et.texto;
+    document.getElementById('ud-estado-stripe').style.background = et.color;
+    document.getElementById('ud-ultima').textContent = 'Última comunicación: ' + fmtRel(fila.ultima_actualizacion);
+    document.getElementById('ud-sensores-ok').textContent = fila.sensores_ok + '/' + fila.sensores_total;
+
+    if (!fila.estacion_id) {
+      document.getElementById('ud-sensores-lista').innerHTML = '<div style="padding:14px;text-align:center;font-size:0.78rem;color:var(--text3)">Este agricultor no tiene estación asignada.</div>';
+      return;
+    }
+
+    // Estación + GPS: se piden filtrados por estación, ya sirve para admin
+    let estacion, sensoresEst;
+    try {
+      [estacion, sensoresEst] = await Promise.all([
+        fetch('/api/estaciones').then(r => r.json()).then(list => list.find(e => e.id === fila.estacion_id)),
+        fetch('/api/sensores').then(r => r.json()).then(list => list.filter(s => s.estacion_id === fila.estacion_id)),
+      ]);
+    } catch (e) {
+      document.getElementById('ud-sensores-lista').innerHTML = '<div style="padding:14px;text-align:center;color:var(--red)">No se pudo cargar el detalle.</div>';
+      return;
+    }
+
+    const gps = estacion && estacion.gps;
+    if (!gps) {
+      document.getElementById('ud-gps').textContent = 'Sin módulo';
+      document.getElementById('ud-gps-sat').textContent = 'No conectado';
+      document.getElementById('ud-latlon').textContent = 'Sin dato';
+      document.getElementById('ud-satelites').textContent = '—';
+    } else if (gps.fix) {
+      document.getElementById('ud-gps').textContent = 'Fix activo';
+      document.getElementById('ud-gps-sat').textContent = gps.satelites + ' satélite(s)';
+      document.getElementById('ud-latlon').textContent = gps.lat.toFixed(5) + ', ' + gps.lon.toFixed(5);
+      document.getElementById('ud-satelites').textContent = gps.satelites;
+    } else {
+      document.getElementById('ud-gps').textContent = 'Buscando señal';
+      document.getElementById('ud-gps-sat').textContent = (gps.satelites || 0) + ' satélite(s)';
+      document.getElementById('ud-latlon').textContent = 'Sin fix';
+      document.getElementById('ud-satelites').textContent = gps.satelites || 0;
+    }
+
+    const porTipo = {};
+    sensoresEst.forEach(s => { porTipo[s.tipo] = s; });
+    const setSensorVal = (tipo, elId, unidad) => {
+      const s = porTipo[tipo];
+      document.getElementById(elId).textContent = s ? (s.valor_actual + (unidad || '')) : 'No instalado';
+    };
+    setSensorVal('temperatura', 'ud-temp', ' °C');
+    setSensorVal('humedad', 'ud-humedad', ' %');
+    setSensorVal('humedad_suelo', 'ud-suelo', ' %');
+    setSensorVal('precipitacion', 'ud-precip', ' mm');
+    setSensorVal('calidad_aire', 'ud-aire', '');
+    setSensorVal('humo', 'ud-humo', '');
+
+    document.getElementById('ud-sensores-lista').innerHTML = this.CATALOGO_SENSORES.map(cat => {
+      const s = porTipo[cat.tipo];
+      if (!s) return `<div class="sensor-diag"><div class="diag-body"><div class="diag-name">${cat.nombre}</div><div class="diag-desc">No instalado</div></div></div>`;
+      const et = this.ETIQUETA_SENSOR[s.estado_sensor] || this.ETIQUETA_SENSOR.sin_respuesta;
+      return `<div class="sensor-diag"><div class="diag-body"><div class="diag-name">${cat.nombre}</div><div class="diag-desc" style="color:${et.color}">${et.texto}</div></div></div>`;
+    }).join('');
+    if (window.lucide) lucide.createIcons();
+  },
+
+  init() {
+    this.fetchAll();
+  }
+};
+
+window.addEventListener('load', () => {
+  if (window.lucide) lucide.createIcons();
+  drawDashCharts();
+  MX.init();
+
+  // Tiempo real: el servidor avisa por WebSocket en cuanto llega un dato nuevo
+  // por MQTT, así que no hace falta seguir preguntando cada pocos segundos.
+  const socket = io();
+  socket.on('datos_actualizados', () => MX.fetchAll());
+
+  // Refresca la tabla de Usuarios aunque una estación se haya quedado
+  // muda (el servidor manda este latido cada ~15s vía _tick_estado).
+  socket.on('estado_actualizado', () => {
+    const pg = document.getElementById('page-usuarios');
+    if (pg && pg.classList.contains('active')) MX.renderUsuarios();
+  });
+
+  // Respaldo: si el WebSocket llegara a caerse, esto sigue refrescando solo.
+  setInterval(() => MX.fetchAll(), 20000);
+});
+window.addEventListener('resize', () => {
+  drawDashCharts();
+  const pv = document.getElementById('page-prevision');
+  if (pv && pv.classList.contains('active')) drawWeekCharts();
+});
+</script>
+</body>
+</html>

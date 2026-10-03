@@ -1,0 +1,21 @@
+# Arduino
+*.ino
+
+# PostgreSQL
+*.sql
+
+# Python
+__pycache__/
+*.pyc
+.venv/
+venv/
+
+# Variables de entorno
+.env
+
+# VS Code
+.vscode/
+
+# Sistema
+Thumbs.db
+Desktop.ini
